@@ -1,0 +1,37 @@
+Documentation:
+
+1) Store Variables:
+
+Define a variable A:
+创造A
+
+Load a value into A:
+让A成2
+
+2) Arithmetic:
+
+1加2
+1减2
+1乘2
+1整除2
+1取模2
+
+3) Branching:
+
+如果A=2就
+
+如果有A就
+
+4) Loops:
+
+当A!=1就
+
+吧
+
+从A=1直到A=10就
+
+吧
+
+5) IO:
+
+印"text"+A
