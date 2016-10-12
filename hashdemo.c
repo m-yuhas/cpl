@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "hashmap.h"
+#include "hashmap2.c"
 
 int main() {
 
@@ -42,42 +42,33 @@ int main() {
   printf("%u\n",m);*/
 
   struct Hashmap hashmap1;
-  init_hashmap( &hashmap1, 1024 );
+  //init_hashmap( &hashmap1, 1024 );
+  int a = 1;
+  int b = 2;
+  int c = 10;
+  int d = 50;
+  printf("HERE\n");
 
-  struct Var a;
-  struct Var b;
-  struct Var c;
-  struct Var d;
-  a.type=1;
-  a.pointerToString="地土";
-  b.type=2;
-  b.pointerToFloat=1.1;
-  c.type=3;
-  c.pointerToInt=2;
-  d.type=3;
-  d.pointerToInt=3;
+  add_key_value_pair_int( &hashmap1, "地土", a );
+  add_key_value_pair_int( &hashmap1, "风吹", b );
+  add_key_value_pair_int( &hashmap1, "烈火", c );
+  add_key_value_pair_int( &hashmap1, "冰水", d );
 
-  add_key_value_pair( &hashmap1, "地土", a );
-  add_key_value_pair( &hashmap1, "风吹", b );
-  add_key_value_pair( &hashmap1, "烈火", c );
-  add_key_value_pair( &hashmap1, "冰水", d );
+  printf("HERE2\n");
 
-  struct Var A;
-  struct Var B;
-  struct Var C;
-  struct Var D;
+  int A,B,C,D;
+  printf("HERE3\n");
 
-  get_value_at_key( &hashmap1, "地土", &A );
-  get_value_at_key( &hashmap1, "风吹", &B );
-  get_value_at_key( &hashmap1, "烈火", &C );
-  get_value_at_key( &hashmap1, "冰水", &D );
+  get_int_at_key( &hashmap1, "地土", &A );
+  printf("HERE4\n");
+  get_int_at_key( &hashmap1, "风吹", &B );
+  get_int_at_key( &hashmap1, "烈火", &C );
+  get_int_at_key( &hashmap1, "冰水", &D );
 
-  printf("A: %s\n",A.pointerToString);
-  printf("B: %f\n",B.pointerToFloat);
-  printf("C: %d\n",C.pointerToInt);
-  printf("D: %d\n",D.pointerToInt);
-
-  destroy_hashmap( &hashmap1 );
+  printf("A: %d\n",A);
+  printf("B: %d\n",B);
+  printf("C: %d\n",C);
+  printf("D: %d\n",D);
 
 
   return 0;
