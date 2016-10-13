@@ -1,62 +1,63 @@
 // stack.h
 // This library implements a stack in C.  The stack is a stack of integers.
-// TODO: Make this library extensible for other data types and structs
 
 #include <stdlib.h>
 #include <string.h>
 
-struct Var {
-  const char type;
-  const char *pointerToString;
-  float *pointerToFloat;
-  long *pointerToInt;
-};
+#define MAP_SIZE 1024
 
 struct HashNode {
-  struct  Var *pointerToStoredVar;
-  const char *key;
+  char *key;
+  char type;
+  char *pointerToString;
+  float Float;
+  int Int;
 };
 
 struct Hashmap {
-  struct HashNode *pointerToNodeArray;
-  int size;
+  struct HashNode HashNodeArray[MAP_SIZE];
 };
 
-int init_hashmap( struct Hashmap *pointerToHashmap, int size );
-int add_key_value_pair( struct Hashmap *pointerToHashmap, const char *key, struct Var value );
-int get_value_at_key( struct Hashmap *pointerToHashmap, const char *key, struct Var *value );
-int destroy_hashmap( struct Hashmap *pointerToHashmap );
+int init_hashmap( struct Hashmap *pointerToHashmap );
+int add_key_value_pair_int( struct Hashmap *pointerToHashmap, char *key, int value );
+int get_key_type( struct Hashmap *pointerToHashmap, char *key );
+int get_int_at_key( struct Hashmap *pointerToHashmap, char *key, int *value );
 int hash( const char *key, unsigned int *hashvalue );
 
-int init_hashmap( struct Hashmap *pointerToHashmap, int size ) {
-  pointerToHashmap->pointerToNodeArray = malloc( size*sizeof(struct HashNode) );
-  pointerToHashmap->size = size;
+int init_hashmap( struct Hashmap *pointerToHashmap ) {
+  for ( int i = 0; i < MAP_SIZE; i++ ) {
+    pointerToHashmap->HashNodeArray[i].type = 0;
+    pointerToHashmap->HashNodeArray[i].key = "\0";
+  }
   return 0;
 }
 
-int add_key_value_pair( struct Hashmap *pointerToHashmap, const char *key, struct Var value ) {
+int add_key_value_pair_int( struct Hashmap *pointerToHashmap, char *key, int value ) {
   // This function stores a key value pair
   // Returns 0 for success
   // Returns 1 if the map is full
   unsigned int hashValue;
   hash( key, &hashValue );
-  hashValue = hashValue % pointerToHashmap->size;
-  if ( *(pointerToHashmap->pointerToNodeArray + sizeof(hashValue)*hashValue)->pointerToStoredVar->type == 0 ) {
-    *(pointerToHashmap->pointerToNodeArray+hashValue)->pointerToStoredVar = value;
-    *(pointerToHashmap->pointerToNodeArray+hashValue)->key = *key;
+  hashValue = hashValue % MAP_SIZE;
+  if ( pointerToHashmap->HashNodeArray[hashValue].type == 0 ) {
+    pointerToHashmap->HashNodeArray[hashValue].type = 1;
+    pointerToHashmap->HashNodeArray[hashValue].Int = value;
+    pointerToHashmap->HashNodeArray[hashValue].key = key;
     return 0;
   } else {
-    for ( int i = hashValue + 1; i < size; i++ ) {
-      if ( *(pointerToHashmap->pointerToNodeArray + i) == NULL ) {
-        *(pointerToHashmap->pointerToNodeArray+i)->pointerToStoredVar = value;
-        *(pointerToHashmap->pointerToNodeArray+i)->key = *key;
+    for ( int i = hashValue + 1; i < MAP_SIZE; i++ ) {
+      if ( pointerToHashmap->HashNodeArray[i].type == 0 ) {
+        pointerToHashmap->HashNodeArray[i].type = 1;
+        pointerToHashmap->HashNodeArray[i].Int = value;
+        pointerToHashmap->HashNodeArray[i].key = key;
         return 0;
       }
     }
     for ( int i = 0; i < hashValue; i++ ) {
-      if ( *(pointerToHashmap->pointerToNodeArray + i) == NULL ) {
-        *(pointerToHashmap->pointerToNodeArray+i)->pointerToStoredVar = value;
-        *(pointerToHashmap->pointerToNodeArray+i)->key = *key;
+      if ( pointerToHashmap->HashNodeArray[i].type == 0 ) {
+        pointerToHashmap->HashNodeArray[i].type = 1;
+        pointerToHashmap->HashNodeArray[i].Int = value;
+        pointerToHashmap->HashNodeArray[i].key = key;
         return 0;
       }
     }
@@ -64,37 +65,49 @@ int add_key_value_pair( struct Hashmap *pointerToHashmap, const char *key, struc
   }
 }
 
-int get_value_at_key( struct Hashmap *pointerToHashmap, const char *key, struct Var *value ) {
-  // This function retreives the value at a given key
-  // Returns 0 for success
-  // Returns 1 if the key is not found in the map
+int get_key_type( struct Hashmap *pointerToHashmap, char *key ) {
   unsigned int hashValue;
   hash( key, &hashValue );
-  hashValue = hashValue % size;
-  if ( *(pointerToHashmap->pointerToNodeArray + hashValue)->key == *key ) {
-    *value = *(pointerToHashmap->pointerToNodeArray+hashValue)->pointerToStoredVar;
+  hashValue = hashValue % MAP_SIZE;
+  if ( pointerToHashmap->HashNodeArray[hashValue].key && strcmp(pointerToHashmap->HashNodeArray[hashValue].key,key) == 0 ) {
+    return pointerToHashmap->HashNodeArray[hashValue].type;
+  } else {
+    for ( int i = hashValue + 1; i < MAP_SIZE; i++ ) {
+      if ( pointerToHashmap->HashNodeArray[i].key && strcmp(pointerToHashmap->HashNodeArray[i].key,key) == 0 ) {
+        return pointerToHashmap->HashNodeArray[i].type;
+      }
+    }
+    for ( int i = 0; i < hashValue; i++ ) {
+      if ( pointerToHashmap->HashNodeArray[i].key && strcmp(pointerToHashmap->HashNodeArray[i].key,key) ==0 ) {
+        return pointerToHashmap->HashNodeArray[i].type;
+      }
+    }
+    return -1;
+  }
+}
+
+int get_int_at_key( struct Hashmap *pointerToHashmap, char *key, int *value ) {
+  unsigned int hashValue;
+  hash( key, &hashValue );
+  hashValue = hashValue % MAP_SIZE;
+  if ( pointerToHashmap->HashNodeArray[hashValue].key && strcmp(pointerToHashmap->HashNodeArray[hashValue].key,key) == 0 ) {
+    *value = pointerToHashmap->HashNodeArray[hashValue].Int;
     return 0;
   } else {
-    for ( int i = hashValue + 1; i < size; i++ ) {
-      if ( *(pointerToHashmap->pointerToNodeArray + i)->key == *key ) {
-        *value = *(pointerToHashmap->pointerToNodeArray+i)->pointerToStoredVar;
+    for ( int i = hashValue + 1; i < MAP_SIZE; i++ ) {
+      if ( pointerToHashmap->HashNodeArray[i].key && strcmp(pointerToHashmap->HashNodeArray[i].key,key) == 0 ) {
+        *value = pointerToHashmap->HashNodeArray[i].Int;
         return 0;
       }
     }
     for ( int i = 0; i < hashValue; i++ ) {
-      if ( *(pointerToHashmap->pointerToNodeArray + i)->key == *key ) {
-        *value = *(pointerToHashmap->pointerToNodeArray+i)->pointerToStoredVar;
+      if ( pointerToHashmap->HashNodeArray[hashValue].key && strcmp(pointerToHashmap->HashNodeArray[i].key,key) == 0 ) {
+        *value = pointerToHashmap->HashNodeArray[i].Int;
         return 0;
       }
     }
     return 1;
   }
-}
-
-int destroy_hashmap( struct Hashmap *pointerToHashmap ) {
-  // Clean up when destroying Hashmap
-  free( pointerToHashmap->pointerToNodeArray );
-  return 0;
 }
 
 int hash( const char *key, unsigned int *hashValue) {

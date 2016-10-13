@@ -47,6 +47,9 @@ int main() {
   int b = 2;
   int c = 10;
   int d = 50;
+
+  init_hashmap( &hashmap1 );
+
   printf("HERE\n");
 
   add_key_value_pair_int( &hashmap1, "地土", a );
