@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include "stack.h"
+#include "mathparse.h"
 
 int main( int argc, char *argv[] ) {
   //Parse Input Arguments
@@ -18,30 +20,39 @@ int main( int argc, char *argv[] ) {
   int c;
   int charCount = 0;
   int lineCount = 0;
+  int whitespaceCount = 0;
   while ( c != EOF ) {
     c = fgetc( filePointer );
     charCount++;
     if ( c == '\n' ) {
       lineCount++;
     }
-    if ( c == '创' ) {
-      printf("Found unicode Character");
+    if ( c == ' ' || c == '\t' ) {
+      whiteSpaceCount++;
     }
     //TODO: Check for overflow here
   }
   fseek( filePointer, SEEK_SET, 0 );
   char fileBuffer[charCount];
+  char programBuffer[charCount-whiteSpaceCount];
   fread(fileBuffer, sizeof(fileBuffer), 1, filePointer);
   fclose( filePointer );
 
-  //Find the location of NewLines in The File
+  //Copy the File sans whitespace to programBuffer
   int lineBreakArray[lineCount];
   int currLine = 1;
-  for ( int i=0; i < charCount; i++ ) {
-    if ( fileBuffer[i] == '\n' ) {
-      lineBreakArray[currLine] = i;
+  int fcount=0;
+  int pcount=0;
+  while ( fcount < charCount ) {
+    if ( fileBuffer[fcount] != ' ' && fileBuffer[fcount] != '\t' ) {
+      programBuffer[pcount] = fileBuffer[fcount];
+      pcount++;
+    }
+    if ( fileBuffer[fcount] == '\n' ) {
+      lineBreakArray[currLine] = pcount;
       currLine++;
     }
+    fcount++;
   }
 
   //Parse The Script

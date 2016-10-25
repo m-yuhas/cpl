@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include "hashmap.h"
@@ -34,8 +35,8 @@ int evaluate_int_expression( char *expression, struct Hashmap *pointerToHashMap,
     }
   }
   if ( addsubindex != -1 ) {
-    char *firsthalf;
-    char *lasthalf;
+    char firsthalf[strlen(expression)];
+    char lasthalf[strlen(expression)];
     strncpy(firsthalf,expression,addsubindex);
     strncpy(lasthalf,expression+addsubindex+1,strlen(expression)-addsubindex+1);
     int returnVal1;
@@ -52,8 +53,9 @@ int evaluate_int_expression( char *expression, struct Hashmap *pointerToHashMap,
     }
   }
   if ( muldivindex != -1 ) {
-    char *firsthalf;
-    char *lasthalf;
+    printf("Multiply Divide Reached\n");
+    char firsthalf[strlen(expression)];
+    char lasthalf[strlen(expression)];
     strncpy(firsthalf,expression,muldivindex);
     strncpy(lasthalf,expression+muldivindex+1,strlen(expression)-muldivindex+1);
     int returnVal1;
