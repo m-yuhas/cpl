@@ -6,7 +6,7 @@
 int main( int argc, char *argv[] ) {
   //Parse Input Arguments
   if ( argc < 2 ) {
-    printf("Please Include A Script To Execute...\n");
+    printf("请包括程序的文件名称...\n");
     return -1;
   }
 
@@ -14,13 +14,13 @@ int main( int argc, char *argv[] ) {
   FILE *filePointer;
   filePointer = fopen(argv[1],"r");
   if ( filePointer == NULL ) {
-    printf("Error Opening File\n");
+    printf("错误开文件\n");
     return -1;
   }
   int c;
   int charCount = 0;
   int lineCount = 0;
-  int whitespaceCount = 0;
+  int whiteSpaceCount = 0;
   while ( c != EOF ) {
     c = fgetc( filePointer );
     charCount++;
@@ -54,19 +54,31 @@ int main( int argc, char *argv[] ) {
     }
     fcount++;
   }
-
   //Parse The Script
   for ( int line=0; line <= lineCount; line++ ) {
+    printf("here\n");
     int endOfLinePos;
     if ( line == lineCount ) {
-      endOfLinePos = charCount;
+      endOfLinePos = charCount-whiteSpaceCount;
     } else {
       endOfLinePos = lineBreakArray[line+1];
+      printf("not last line\n");
     }
-    for ( int cursor=lineBreakArray[line]; cursor < endOfLinePos; cursor++ ) {
-      if ( fileBuffer[cursor] == '创' ) {
-        printf("Created a variable here\n");
-      }
+    printf("%d\n",endOfLinePos);
+    printf("%d\n",lineBreakArray[line+1]);
+    char lineString[endOfLinePos - lineBreakArray[line+1]];
+    printf("1\n");
+    strncpy(lineString,programBuffer+lineBreakArray[line],endOfLinePos - lineBreakArray[line]);
+    //for ( int cursor=lineBreakArray[line]; cursor < endOfLinePos; cursor++ ) {
+      //printf("%c",programBuffer[cursor]);
+    //}
+    printf("2\n");
+    if (programBuffer[lineBreakArray[line]] == '\n') {
+      continue;
+    }
+    if ( memcmp(lineString,"印",2) == 0 ) {
+      printf("here\n");
+      printf("%s",lineString+2);
     }
   }
 
