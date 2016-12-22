@@ -7,7 +7,7 @@ else
 fi
 
 echo Building Swift Sources
-if swiftc -import-objc-header readFile.h main.swift readFile.o -o cpl ; then
+if swiftc -import-objc-header readFile.h main.swift varObject.swift mathParser.swift readFile.o -o cpl ; then
   echo [PASS]
 else
   echo [FAIL]
