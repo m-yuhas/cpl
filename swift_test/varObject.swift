@@ -8,13 +8,14 @@ enum OperationError: Error {
   case raiseStringToPower
   case stringRaisedToPower
   case factorialOfString
+  case invalidState
 }
 
 class VarObject {
   private var intVal: Int
   private var floatVal: Float
   private var stringVal: String
-  private var type: UInt8
+  private var type: Int
 
   init() {
     self.intVal = 0
@@ -59,7 +60,7 @@ class VarObject {
     self.type = 3
   }
 
-  public func getType() -> UInt8 {
+  public func getType() -> Int {
     return self.type
   }
 
@@ -75,133 +76,141 @@ class VarObject {
     return self.stringVal
   }
 
-  public func add(addend : VarObject) -> VarObject {
-    if self.type = 1 {
-      if addend.getType = 1 {
-        return VarObject(self.intVal + addend.getIntValue())
-      } else if addend.getType = 2 {
-        return VarObject(Float(self.intVal) + addend.getFloatValue())
-      } else if addend.getType = 3 {
-        return VarObject(String(self.intVal) + addend.getStringValue())
+  public func add(addend : VarObject) throws -> VarObject {
+    if self.type == 1 {
+      if addend.getType() == 1 {
+        return VarObject(initial_value: self.intVal + addend.getIntegerValue())
+      } else if addend.getType() == 2 {
+        return VarObject(initial_value: Float(self.intVal) + addend.getFloatValue())
+      } else if addend.getType() == 3 {
+        return VarObject(initial_value: String(self.intVal) + addend.getStringValue())
       }
-    } else if self.type = 2 {
-      if addend.getType = 1 {
-        return VarObject(self.floatVal + Float(addend.getIntValue()))
-      } else if addend.getType = 2 {
-        return VarObject(self.floatVal + addend.getFloatValue())
-      } else if addend.getType = 3 {
-        return VarObject(String(self.floatVal) + addend.getStringValue())
+    } else if self.type == 2 {
+      if addend.getType() == 1 {
+        return VarObject(initial_value: self.floatVal + Float(addend.getIntegerValue()))
+      } else if addend.getType() == 2 {
+        return VarObject(initial_value: self.floatVal + addend.getFloatValue())
+      } else if addend.getType() == 3 {
+        return VarObject(initial_value: String(self.floatVal) + addend.getStringValue())
       }
-    } else if self.type = 3 {
-      if addend.getType = 1 {
-        return VarObject(self.stringVal + String(addend.getIntValue()))
-      } else if addend.getType = 2 {
-        return VarObject(self.stringVal + String(addend.getFloatValue()))
-      } else if addend.getType = 3 {
-        return VarObject(self.stringVal + addend.stringVal)
+    } else if self.type == 3 {
+      if addend.getType() == 1 {
+        return VarObject(initial_value: self.stringVal + String(addend.getIntegerValue()))
+      } else if addend.getType() == 2 {
+        return VarObject(initial_value: self.stringVal + String(addend.getFloatValue()))
+      } else if addend.getType() == 3 {
+        return VarObject(initial_value: self.stringVal + addend.stringVal)
       }
     }
+    throw OperationError.invalidState
   }
 
-  public func sub(subtrahend : VarObject) -> VarObject {
-    if self.type = 1 {
-      if subtrahend.getType = 1 {
-        return VarObject(self.intVal - subtrahend.getIntValue())
-      } else if subtrahend.getType = 2 {
-        return VarObject(Float(self.intVal) - subtrahend.getFloatValue())
-      } else if subtrahend.getType = 3 {
-        return VarObject(String(self.intVal).replacingOccurences(of: subtrahend.getStringValue(), with: ""))
+  public func sub(subtrahend : VarObject) throws -> VarObject {
+    if self.type == 1 {
+      if subtrahend.getType() == 1 {
+        return VarObject(initial_value: self.intVal - subtrahend.getIntegerValue())
+      } else if subtrahend.getType() == 2 {
+        return VarObject(initial_value: Float(self.intVal) - subtrahend.getFloatValue())
+      } else if subtrahend.getType() == 3 {
+        return VarObject(initial_value: String(self.intVal).replacingOccurrences(of: subtrahend.getStringValue(), with: ""))
       }
-    } else if self.type = 2 {
-      if subtrahend.getType = 1 {
-        return VarObject(self.floatVal - Float(subtrahend.getIntValue()))
-      } else if subtrahend.getType = 2 {
-        return VarObject(self.floatVal - subtrahend.getFloatValue())
-      } else if subtrahend.getType = 3 {
-        return VarObject(String(self.floatVal).replacingOccurences(of: subtrahend.getStringValue(), with: ""))
+    } else if self.type == 2 {
+      if subtrahend.getType() == 1 {
+        return VarObject(initial_value: self.floatVal - Float(subtrahend.getIntegerValue()))
+      } else if subtrahend.getType() == 2 {
+        return VarObject(initial_value: self.floatVal - subtrahend.getFloatValue())
+      } else if subtrahend.getType() == 3 {
+        return VarObject(initial_value: String(self.floatVal).replacingOccurrences(of: subtrahend.getStringValue(), with: ""))
       }
-    } else if self.type = 3 {
-      if subtrahend.getType = 1 {
-        return VarObject(self.stringVal.replacingOccurences(of: String(subtrahend.getIntValue(), with: "")))
-      } else if subtrahend.getType = 2 {
-        return VarObject(self.stringVal.replacingOccurences(of: String(subtrahend.getFloatValue(), with: "")))
-      } else if subtrahend.getType = 3 {
-        return VarObject(self.stringVal.replacingOccurences(of: subtrahend.getStringValue(), with: ""))
+    } else if self.type == 3 {
+      if subtrahend.getType() == 1 {
+        return VarObject(initial_value: self.stringVal.replacingOccurrences(of: String(subtrahend.getIntegerValue()), with: ""))
+      } else if subtrahend.getType() == 2 {
+        return VarObject(initial_value: self.stringVal.replacingOccurrences(of: String(subtrahend.getFloatValue()), with: ""))
+      } else if subtrahend.getType() == 3 {
+        return VarObject(initial_value: self.stringVal.replacingOccurrences(of: subtrahend.getStringValue(), with: ""))
       }
     }
+    throw OperationError.invalidState
   }
 
   public func mul(factor : VarObject) throws -> VarObject {
-    if self.type = 1 {
-      if factor.getType = 1 {
-        return VarObject(self.intVal * factor.getIntValue())
-      } else if factor.getType = 2 {
-        return VarObject(Float(self.intVal) * factor.getFloatValue())
-      } else if factor.getType = 3 {
+    if self.type == 1 {
+      if factor.getType() == 1 {
+        return VarObject(initial_value: self.intVal * factor.getIntegerValue())
+      } else if factor.getType() == 2 {
+        return VarObject(initial_value: Float(self.intVal) * factor.getFloatValue())
+      } else if factor.getType() == 3 {
         throw OperationError.multiplyString
       }
-    } else if self.type = 2 {
-      if factor.getType = 1 {
-        return VarObject(self.floatVal * Float(factor.getIntValue()))
-      } else if factor.getType = 2 {
-        return VarObject(self.floatVal * factor.getFloatValue())
-      } else if factor.getType = 3 {
+    } else if self.type == 2 {
+      if factor.getType() == 1 {
+        return VarObject(initial_value: self.floatVal * Float(factor.getIntegerValue()))
+      } else if factor.getType() == 2 {
+        return VarObject(initial_value: self.floatVal * factor.getFloatValue())
+      } else if factor.getType() == 3 {
         throw OperationError.multiplyString
       }
     } else {
       throw OperationError.multiplyString
     }
+    throw OperationError.invalidState
   }
 
   public func div(divisor : VarObject) throws -> VarObject {
-    if self.type = 1 {
-      if divisor.getType = 1 {
-        return VarObject(Float(self.intVal) / Float(divisor.getIntValue()))
-      } else if divisor.getType = 2 {
-        return VarObject(Float(self.intVal) / divisor.getFloatValue())
-      } else if divisor.getType = 3 {
+    if self.type == 1 {
+      if divisor.getType() == 1 {
+        return VarObject(initial_value: Float(self.intVal) / Float(divisor.getIntegerValue()))
+      } else if divisor.getType() == 2 {
+        return VarObject(initial_value: Float(self.intVal) / divisor.getFloatValue())
+      } else if divisor.getType() == 3 {
         throw OperationError.divideString
       }
-    } else if self.type = 2 {
-      if divisor.getType = 1 {
-        return VarObject(self.floatVal / Float(divisor.getIntValue()))
-      } else if divisor.getType = 2 {
-        return VarObject(self.floatVal / divisor.getFloatValue())
-      } else if divisor.getType = 3 {
+    } else if self.type == 2 {
+      if divisor.getType() == 1 {
+        return VarObject(initial_value: self.floatVal / Float(divisor.getIntegerValue()))
+      } else if divisor.getType() == 2 {
+        return VarObject(initial_value: self.floatVal / divisor.getFloatValue())
+      } else if divisor.getType() == 3 {
         throw OperationError.divideString
       }
     } else {
       throw OperationError.divideString
     }
+    throw OperationError.invalidState
   }
 
   public func mod(divisor : VarObject) throws -> VarObject {
-    if self.type = 1 {
-      if divisor.getType = 1 {
-        return VarObject(self.intVal % divisor.getIntValue())
-      } else if divisor.getType = 2 {
-        return VarObject(Float(self.intVal) % divisor.getFloatValue())
-      } else if divisor.getType = 3 {
+    if self.type == 1 {
+      if divisor.getType() == 1 {
+        return VarObject(initial_value: self.intVal % divisor.getIntegerValue())
+      } else if divisor.getType() == 2 {
+        //return VarObject(initial_value: Float(self.intVal) % divisor.getFloatValue())
+        throw OperationError.moduloDivideString
+      } else if divisor.getType() == 3 {
         throw OperationError.moduloDivideString
       }
-    } else if self.type = 2 {
-      if divisor.getType = 1 {
-        return VarObject(self.floatVal % Float(divisor.getIntValue))
-      } else if divisor.getType = 2 {
-        return VarObject(self.floatVal % divisor.getFloatValue())
-      } else if divisor.getType = 3 {
+    } else if self.type == 2 {
+      if divisor.getType() == 1 {
+        //return VarObject(initial_value: self.floatVal % Float(divisor.getIntegerValue()))
+        throw OperationError.moduloDivideString
+      } else if divisor.getType() == 2 {
+        //return VarObject(initial_value: self.floatVal % divisor.getFloatValue())
+        throw OperationError.moduloDivideString
+      } else if divisor.getType() == 3 {
         throw OperationError.moduloDivideString
       }
     } else {
       throw OperationError.moduloDivideString
     }
+    throw OperationError.invalidState
   }
 
   public func exp(exponent : VarObject) throws -> VarObject {
-
+    throw OperationError.raiseStringToPower
   }
 
   public func fac() throws -> VarObject {
-    
+    throw OperationError.factorialOfString
   }
 }

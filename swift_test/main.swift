@@ -19,6 +19,13 @@ let data = Data(bytes: i!, count: 100)
 var str = String(data: data, encoding: String.Encoding.utf8)!
 var lineArray = str.components(separatedBy : "\n")
 
+print("2+2")
+do {
+  try print(parseExpression(expression:"2+2").getIntegerValue())
+} catch ExpressionError.unknownVarName {
+  print("Error Unknown var name")
+}
+
 
 var varList = [String : VarObject]()
 var progCounter = 0
