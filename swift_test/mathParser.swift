@@ -9,19 +9,17 @@ enum ExpressionError: Error {
 }
 
 func parseExpression(expression : String) throws -> VarObject {
-  var hasParenth = false
   var parenthCount = 0
   var addSubIndex = -1
   var mulDivIndex = -1
   var expIndex = -1
-  var facIndex = -1
+  //var facIndex = -1
   var optype = -1
   var currIndex = -1
   for i in 0..<expression.characters.count {
-    var index = expression.index(expression.startIndex, offsetBy: i)
+    let index = expression.index(expression.startIndex, offsetBy: i)
     if expression[index] == "(" {
       parenthCount += 1
-      hasParenth = true
       continue
     } else if expression[index] == ")" {
       parenthCount -= 1
@@ -58,7 +56,7 @@ func parseExpression(expression : String) throws -> VarObject {
         currIndex = i
         break
       } else if expression[index] == "!" {
-        facIndex = i
+        //facIndex = i
         optype = 7
         currIndex = i
         break
@@ -68,8 +66,8 @@ func parseExpression(expression : String) throws -> VarObject {
   //TODO Make this more efficient and only use optype
   //TODO Implement boolean operators
   if addSubIndex != -1 {
-    var firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
-    var lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
+    let firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
+    let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
     if optype == 1 {
       do {
         return try parseExpression( expression:firsthalf ).add( addend:parseExpression( expression:lasthalf ) )
@@ -85,8 +83,8 @@ func parseExpression(expression : String) throws -> VarObject {
       }
     }
   } else if mulDivIndex != -1 {
-    var firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
-    var lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))  //TODO check for last character in array
+    let firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
+    let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))  //TODO check for last character in array
     if optype == 3 {
       do {
         return try parseExpression( expression:firsthalf ).mul( factor:parseExpression( expression:lasthalf ) )
@@ -109,16 +107,16 @@ func parseExpression(expression : String) throws -> VarObject {
       }
     }
   } else if expIndex != -1 {
-    var firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
-    var lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
+    let firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
+    let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
     do {
       return try parseExpression( expression:firsthalf ).exp( exponent:parseExpression( expression:lasthalf ) )
     } catch {
       throw ExpressionError.invalidSyntax
     }
   } else if expression[expression.startIndex] == "(" && expression[expression.endIndex] == ")" {
-    var range = expression.index(expression.startIndex, offsetBy: 1)..<expression.index(expression.endIndex, offsetBy: -1)
-    var removedParenths = expression.substring(with: range)
+    let range = expression.index(expression.startIndex, offsetBy: 1)..<expression.index(expression.endIndex, offsetBy: -1)
+    let removedParenths = expression.substring(with: range)
     do {
       return try parseExpression( expression:removedParenths )
     } catch {
