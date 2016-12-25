@@ -50,7 +50,9 @@ var lineArray = str.components(separatedBy : "\n")
 //}
 
 var varList = [String : VarObject]()
-var progCounter = 0
+stateMachine( lineArray:lineArray, CurrVarList:varList)
+
+/*var progCounter = 0
 var ifLevel = 0
 var loopLevel = 0
 while progCounter < lineArray.count {
@@ -130,4 +132,4 @@ while progCounter < lineArray.count {
     print(lineArray[progCounter])
     break
   }
-}
+}*/

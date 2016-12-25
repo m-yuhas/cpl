@@ -6,7 +6,7 @@ enum OutputError: Error {
   case invalidSyntax
 }
 
-func basicOutput( output_text: String ) throws {
+func basicOutput( output_text: String, varList:Dictionary<String,VarObject> ) throws {
   var expression = output_text
   if expression[expression.startIndex] != "\"" || expression[expression.index(expression.endIndex, offsetBy:-1)] != "\"" {
     throw OutputError.invalidSyntax
@@ -56,7 +56,7 @@ func basicOutput( output_text: String ) throws {
           }
         }
         do {
-          let varToPrint = try parseExpression(expression:exprName)
+          let varToPrint = try parseExpression(expression:exprName, varList:varList)
           if varToPrint.getType() == 1 {
             print(varToPrint.getIntegerValue(), terminator: "")
           } else if varToPrint.getType() == 2 {

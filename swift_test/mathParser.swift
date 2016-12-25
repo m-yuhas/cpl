@@ -8,7 +8,7 @@ enum ExpressionError: Error {
   case unknownVarName
 }
 
-func parseExpression(expression : String) throws -> VarObject {
+func parseExpression(expression : String, varList: Dictionary<String, VarObject>) throws -> VarObject {
   var parenthCount = 0
   var addSubIndex = -1
   var mulDivIndex = -1
@@ -70,14 +70,14 @@ func parseExpression(expression : String) throws -> VarObject {
     let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
     if optype == 1 {
       do {
-        return try parseExpression( expression:firsthalf ).add( addend:parseExpression( expression:lasthalf ) )
+        return try parseExpression( expression:firsthalf, varList:varList ).add( addend:parseExpression( expression:lasthalf, varList:varList ) )
       } catch {
         throw ExpressionError.invalidSyntax
       }
     }
     if optype == 2 {
       do {
-        return try parseExpression( expression:firsthalf ).sub( subtrahend:parseExpression( expression:lasthalf ) )
+        return try parseExpression( expression:firsthalf, varList:varList ).sub( subtrahend:parseExpression( expression:lasthalf, varList:varList ) )
       } catch {
         throw ExpressionError.invalidSyntax
       }
@@ -87,21 +87,21 @@ func parseExpression(expression : String) throws -> VarObject {
     let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))  //TODO check for last character in array
     if optype == 3 {
       do {
-        return try parseExpression( expression:firsthalf ).mul( factor:parseExpression( expression:lasthalf ) )
+        return try parseExpression( expression:firsthalf, varList:varList ).mul( factor:parseExpression( expression:lasthalf, varList:varList ) )
       } catch {
         throw ExpressionError.invalidSyntax
       }
     }
     if optype == 4 {
       do {
-        return try parseExpression( expression:firsthalf ).div( divisor:parseExpression( expression:lasthalf ) )
+        return try parseExpression( expression:firsthalf, varList:varList ).div( divisor:parseExpression( expression:lasthalf, varList:varList ) )
       } catch {
         throw ExpressionError.invalidSyntax
       }
     }
     if optype == 5 {
       do {
-        return try parseExpression( expression:firsthalf ).mod( divisor:parseExpression( expression:lasthalf ) )
+        return try parseExpression( expression:firsthalf, varList:varList ).mod( divisor:parseExpression( expression:lasthalf, varList:varList ) )
       } catch {
         throw ExpressionError.invalidSyntax
       }
@@ -110,7 +110,7 @@ func parseExpression(expression : String) throws -> VarObject {
     let firsthalf = expression.substring(to: expression.index(expression.startIndex, offsetBy: currIndex))
     let lasthalf = expression.substring(from: expression.index(expression.startIndex, offsetBy: currIndex+1))
     do {
-      return try parseExpression( expression:firsthalf ).exp( exponent:parseExpression( expression:lasthalf ) )
+      return try parseExpression( expression:firsthalf, varList:varList ).exp( exponent:parseExpression( expression:lasthalf, varList:varList ) )
     } catch {
       throw ExpressionError.invalidSyntax
     }
@@ -118,13 +118,13 @@ func parseExpression(expression : String) throws -> VarObject {
     let range = expression.index(expression.startIndex, offsetBy: 1)..<expression.index(expression.endIndex, offsetBy: -1)
     let removedParenths = expression.substring(with: range)
     do {
-      return try parseExpression( expression:removedParenths )
+      return try parseExpression( expression:removedParenths, varList:varList )
     } catch {
       throw ExpressionError.invalidSyntax
     }
   } else {
     do {
-      return try evaluateAtom( expression:expression )
+      return try evaluateAtom( expression:expression, varList:varList )
     } catch {
       throw ExpressionError.invalidSyntax
     }
@@ -132,7 +132,7 @@ func parseExpression(expression : String) throws -> VarObject {
   throw ExpressionError.invalidSyntax
 }
 
-func evaluateAtom(expression : String) throws -> VarObject {
+func evaluateAtom(expression : String, varList: Dictionary<String, VarObject>) throws -> VarObject {
   if Int(expression) != nil {
     return VarObject(initial_value: Int(expression)! )
   } else if Float(expression) != nil {
