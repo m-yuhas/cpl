@@ -1,4 +1,4 @@
-// this implements the 宣 command
+// this implements the Input/Output Command Text Display
 // Definition of Variable object available in varObject.swift
 // (C) 2016 Michael Yuhas
 

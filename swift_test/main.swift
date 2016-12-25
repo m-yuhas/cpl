@@ -34,7 +34,7 @@ if CommandLine.arguments.count <= 1 {
 var filePath = CommandLine.arguments[1]
 //var filePath = "test.txt"
 var i = readFile( filePath )
-let data = Data(bytes: i!, count: 100)
+let data = Data(bytes: i!, count: 1000)
 var str = String(data: data, encoding: String.Encoding.utf8)!
 if str == "ERR001" || str == "ERR002" {
   print("错误：不能开文件")
@@ -51,24 +51,80 @@ var lineArray = str.components(separatedBy : "\n")
 
 var varList = [String : VarObject]()
 var progCounter = 0
+var ifLevel = 0
+var loopLevel = 0
 while progCounter < lineArray.count {
   var thisLine = lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces)
   if thisLine.isEmpty {
     progCounter+=1
     continue
-  } else if thisLine.hasPrefix("注解：") {
+  } else if thisLine.hasPrefix("注解：") || thisLine.hasPrefix("注解:") {
     progCounter+=1
     continue
-  } else if thisLine.hasPrefix("宣") {
-    thisLine.remove(at: thisLine.startIndex)
+  } else if thisLine.hasPrefix("输出:") || thisLine.hasPrefix("输出：") {
+    let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:3))
     do {
-      try basicOutput( output_text: thisLine.trimmingCharacters(in: CharacterSet.whitespaces) )
+      try basicOutput( output_text: tempString.trimmingCharacters(in: CharacterSet.whitespaces) )
     } catch {
       print("错误：句法不对 （第\(progCounter)句）")
       print(lineArray[progCounter])
       break
     }
     progCounter+=1
+  } else if thisLine.hasPrefix("如果") {
+    let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2))
+    ifLevel += 1
+    do {
+      if try evaluateBoolean( input_string: tempString.trimmingCharacters(in: CharacterSet.whitespaces) ) {
+        progCounter+=1
+        continue
+      } else {
+        progCounter += 1
+        var startingIfLevel = ifLevel
+        while true {
+          if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces).hasPrefix("如果") {
+            ifLevel += 1
+          } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "否则" && startingIfLevel == ifLevel {
+            break
+          } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束支" && startingIfLevel == ifLevel {
+            break
+          } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束支" {
+            ifLevel -= 1
+          }
+          progCounter += 1
+        }
+        continue
+      }
+    } catch {
+      print("错误：句法不对 （第\(progCounter)句）")
+      print(lineArray[progCounter])
+    }
+    continue
+  } else if thisLine.hasPrefix("从") {
+    continue
+  } else if thisLine.hasPrefix("当") {
+    continue
+  } else if thisLine == "否则" {
+    if ifLevel < 1 {
+      print("错误：突然“否则”（第\(progCounter)句）")
+      print(lineArray[progCounter])
+    }
+    progCounter += 1
+    continue
+  } else if thisLine == "结束支" {
+    ifLevel -= 1
+    if ifLevel < 0 {
+      print("错误：突然“结束支”（第\(progCounter)句）")
+      print(lineArray[progCounter])
+    }
+    progCounter += 1
+    continue
+  } else if thisLine == "结束圈" {
+  } else if false {
+    continue
+  } else if progCounter == 0 && thisLine.hasPrefix("#") {
+    progCounter+=1
+    continue
   } else {
     print("错误：命令不清楚（第\(progCounter)句）")
     print(lineArray[progCounter])

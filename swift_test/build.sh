@@ -16,7 +16,7 @@ else
 fi
 
 echo -n Building Swift Sources$'\t'$'\t'
-if swiftc -import-objc-header readFile.h main.swift varObject.swift mathParser.swift basicOutput.swift readFile.o -o cpl ; then
+if swiftc -import-objc-header readFile.h main.swift varObject.swift mathParser.swift basicOutput.swift evaluateBoolean.swift readFile.o -o cpl ; then
   echo -e [${GREEN}PASS${NC}]
   PASSES+=1;
 else
