@@ -18,6 +18,7 @@ func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject
   var charcount = -1
 
 
+
   for char in expression.characters {
     if char == "=" {
       optype = 1
@@ -56,7 +57,7 @@ func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject
       return false
     }
   }
-  for char in expression.substring(to: expression.index(expression.startIndex, offsetBy: charcount+1)).characters {
+  for char in expression.substring(from: expression.index(expression.startIndex, offsetBy: charcount+2)).characters {
     if char == "=" || char == "<" || char == ">" {
       throw BooleanExpressionError.invalidSyntax
     }

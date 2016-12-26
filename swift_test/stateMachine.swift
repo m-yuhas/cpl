@@ -12,7 +12,7 @@ import Foundation
 func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject> ) {
   var progCounter = 0
   while progCounter < lineArray.count {
-    var thisLine = lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces)
+    let thisLine = lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces)
     if thisLine.isEmpty {
       progCounter+=1
       continue
@@ -100,8 +100,8 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
       } catch {
         print("错误：句法不对 （第\(progCounter)句）")
         print(lineArray[progCounter])
+        break
       }
-      continue
     } else if thisLine.hasPrefix("从") {
       continue
     } else if thisLine.hasPrefix("当") {

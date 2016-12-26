@@ -1,8 +1,10 @@
 #!/usr/bin/cpl
 注解:This is a demo program
 输出:"Hello World! #2+2 #6"
-如果 2+2=6
+如果 6+1=6+2
   输出:"Hello Again"
 否则
   输出:"Else Branch"
 结束支
+
+输出:"This text comes after the loop"
