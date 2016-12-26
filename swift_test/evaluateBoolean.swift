@@ -6,7 +6,7 @@ enum BooleanExpressionError: Error {
   case invalidSyntax
 }
 
-func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject> ) throws -> Bool {
+func evaluateBoolean( input_string: String ) throws -> Bool {
   var expression = input_string
   if expression[expression.startIndex] == "(" && expression[expression.index(expression.endIndex, offsetBy:-1)] == ")" {
     expression.remove(at: expression.startIndex)
@@ -15,7 +15,7 @@ func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject
   var firsthalf = ""
   var lasthalf = ""
   var optype = -1
-  var charcount = -1
+  var charcount = 0
 
 
 
@@ -35,7 +35,7 @@ func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject
   }
   if optype == -1 {
     do {
-      let temp = try parseExpression( expression: firsthalf, varList:varList )
+      let temp = try parseExpression( expression: firsthalf )
       if temp.getType() == 1 {
         if temp.getIntegerValue() != 0 {
           return true
@@ -57,15 +57,15 @@ func evaluateBoolean( input_string: String, varList: Dictionary<String,VarObject
       return false
     }
   }
-  for char in expression.substring(from: expression.index(expression.startIndex, offsetBy: charcount+2)).characters {
+  for char in expression.substring(from: expression.index(expression.startIndex, offsetBy: charcount+1)).characters {
     if char == "=" || char == "<" || char == ">" {
       throw BooleanExpressionError.invalidSyntax
     }
     lasthalf.append(char)
   }
   do {
-    let evalfirst = try parseExpression( expression: firsthalf, varList:varList )
-    let evallast = try parseExpression( expression: lasthalf, varList:varList )
+    let evalfirst = try parseExpression( expression: firsthalf )
+    let evallast = try parseExpression( expression: lasthalf )
     return try compare( val1: evalfirst, val2: evallast, optype: optype )
   } catch {
     throw BooleanExpressionError.invalidSyntax

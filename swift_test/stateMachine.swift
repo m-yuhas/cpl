@@ -9,7 +9,8 @@
 
 import Foundation
 
-func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject> ) {
+func stateMachine( lineArray: [String] ) {
+  varList.append([String: VarObject]())
   var progCounter = 0
   while progCounter < lineArray.count {
     let thisLine = lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces)
@@ -22,7 +23,7 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
     } else if thisLine.hasPrefix("输出:") || thisLine.hasPrefix("输出：") {
       let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:3))
       do {
-        try basicOutput( output_text: tempString.trimmingCharacters(in: CharacterSet.whitespaces), varList:CurrVarList )
+        try basicOutput( output_text: tempString.trimmingCharacters(in: CharacterSet.whitespaces) )
       } catch {
         print("错误：句法不对 （第\(progCounter)句）")
         print(lineArray[progCounter])
@@ -32,7 +33,7 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
     } else if thisLine.hasPrefix("如果") {
       let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2))
       do {
-        if try evaluateBoolean( input_string: tempString.trimmingCharacters(in: CharacterSet.whitespaces), varList:CurrVarList ) {
+        if try evaluateBoolean( input_string: tempString.trimmingCharacters(in: CharacterSet.whitespaces) ) {
           progCounter+=1
           var ifLevel = 0
           var subRoutineArray = [String]()
@@ -62,7 +63,7 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
             subRoutineArray.append(lineArray[progCounter])
             progCounter += 1
           }
-          stateMachine( lineArray:subRoutineArray, CurrVarList:CurrVarList)  //TODO Have a way to store variables
+          stateMachine( lineArray:subRoutineArray )  //TODO Have a way to store variables
           continue
         } else {
           progCounter += 1
@@ -85,7 +86,7 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
                 subRoutineArray.append(lineArray[progCounter])
                 progCounter += 1
               }
-              stateMachine( lineArray:subRoutineArray, CurrVarList:CurrVarList)
+              stateMachine( lineArray:subRoutineArray )
               break
             } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束支" && ifLevel == 0 {
               progCounter += 1
@@ -114,10 +115,23 @@ func stateMachine( lineArray: [String], CurrVarList: Dictionary<String,VarObject
       progCounter+=1
       continue
     } else {
+      let charset = CharacterSet(charactersIn: "=")
+      if thisLine.rangeOfCharacter(from: charset) != nil {
+        do {
+          try storeVar( expression: thisLine )
+          progCounter+=1
+          continue
+        } catch {
+          print("错误：命令不清楚（第\(progCounter)句）")
+          print(lineArray[progCounter])
+          break
+        }
+      }
       print("错误：命令不清楚（第\(progCounter)句）")
       print(lineArray[progCounter])
       break
     }
   }
-
+  varList.removeLast()
+  return
 }

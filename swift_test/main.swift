@@ -49,8 +49,9 @@ var lineArray = str.components(separatedBy : "\n")
 //  print("Error Unknown var name")
 //}
 
-var varList = [String : VarObject]()
-stateMachine( lineArray:lineArray, CurrVarList:varList)
+var varList = [Dictionary<String, VarObject>]()
+varList.append([String: VarObject]())
+stateMachine( lineArray:lineArray)
 
 /*var progCounter = 0
 var ifLevel = 0
