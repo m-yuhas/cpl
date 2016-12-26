@@ -51,7 +51,9 @@ var lineArray = str.components(separatedBy : "\n")
 
 var varList = [Dictionary<String, VarObject>]()
 varList.append([String: VarObject]())
-stateMachine( lineArray:lineArray)
+if stateMachine( lineArray:lineArray) == 1 {
+  print("错误：突然“跳出”")
+}
 
 /*var progCounter = 0
 var ifLevel = 0

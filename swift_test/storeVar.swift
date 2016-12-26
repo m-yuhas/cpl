@@ -13,7 +13,7 @@ enum VariableStorageError: Error {
   case invalidSyntax
 }
 
-func storeVar( expression : String ) throws {
+func storeVar( expression : String ) throws -> String {
   var firsthalf = ""
   var lasthalf = ""
   var charcount = 0
@@ -40,11 +40,11 @@ func storeVar( expression : String ) throws {
     for i in 0..<varList.count {
       if varList[i][firsthalf] != nil {
         varList[i][firsthalf] = evalLast
-        return
+        return firsthalf
       }
     }
     varList[varList.count - 1][firsthalf] = evalLast
-    return
+    return firsthalf
   } catch {
     throw VariableStorageError.invalidSyntax
   }
