@@ -22,7 +22,6 @@ if C_ARGC <= 1 {
   exit(0)
 }*/
 
-
 if CommandLine.arguments.count <= 1 {
   print("用法：cpl 《程序地址》")
   exit(0)

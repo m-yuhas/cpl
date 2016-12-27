@@ -8,9 +8,11 @@ enum OutputError: Error {
 
 func basicOutput( output_text: String ) throws {
   var expression = output_text
-  if expression[expression.startIndex] != "\"" || expression[expression.index(expression.endIndex, offsetBy:-1)] != "\"" {
+  if !( ( expression[expression.startIndex] != "\"" || expression[expression.startIndex] != "“" || expression[expression.startIndex] != "”" ) && ( expression[expression.index(expression.endIndex, offsetBy:-1)] != "\"" || expression[expression.index(expression.endIndex, offsetBy:-1)] != "“" || expression[expression.index(expression.endIndex, offsetBy:-1)] != "”" ) ) {
+    print("HERE")
     throw OutputError.invalidSyntax
   }
+
   expression.remove(at: expression.startIndex)
   expression.remove(at: expression.index(expression.endIndex, offsetBy:-1))
   var i=0
@@ -56,6 +58,7 @@ func basicOutput( output_text: String ) throws {
           }
         }
         do {
+          exprName = stripWhitespace(input_string:exprName)
           let varToPrint = try parseExpression(expression:exprName)
           if varToPrint.getType() == 1 {
             print(varToPrint.getIntegerValue(), terminator: "")

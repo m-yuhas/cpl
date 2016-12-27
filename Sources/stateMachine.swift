@@ -31,7 +31,7 @@ func stateMachine( lineArray: [String] ) -> Int {
       }
       progCounter+=1
     } else if thisLine.hasPrefix("如果") {
-      let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2))
+      let tempString = stripWhitespace(input_string:thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2)))
       do {
         if try evaluateBoolean( input_string: tempString.trimmingCharacters(in: CharacterSet.whitespaces) ) {
           progCounter+=1
@@ -116,7 +116,7 @@ func stateMachine( lineArray: [String] ) -> Int {
         break
       }
       //print(tempString)
-      //let initConditionString = tempString.substring(to: initCondEndIndex!.lowerBound)
+      //let initConditionString = tempString.substring(to: initCondEndIndex.lowerBound)
       let endConditionString = tempString.substring(from: tempString.index(initCondEndIndex!.lowerBound, offsetBy: 3))
       progCounter += 1
       var loopLevel = 0
@@ -135,9 +135,9 @@ func stateMachine( lineArray: [String] ) -> Int {
       }
       //print( endConditionString )
       do {
-        let CounterVarString = try storeVar( expression: tempString.substring(to: initCondEndIndex!.lowerBound) ).trimmingCharacters(in: CharacterSet.whitespaces)
+        let CounterVarString = try storeVar( expression: stripWhitespace(input_string:tempString.substring(to: initCondEndIndex!.lowerBound).trimmingCharacters(in: CharacterSet.whitespaces)))
         //print(CounterVarString)
-        let FinalCondition = try parseExpression( expression: endConditionString.trimmingCharacters(in: CharacterSet.whitespaces) )
+        let FinalCondition = try parseExpression( expression: stripWhitespace(input_string:endConditionString.trimmingCharacters(in: CharacterSet.whitespaces)) )
         outerLoop: while true {
           for i in 0..<varList.count {
             if varList[i][CounterVarString] != nil {
@@ -174,7 +174,7 @@ func stateMachine( lineArray: [String] ) -> Int {
         progCounter += 1
       }
       do {
-        while try evaluateBoolean( input_string: tempString ) {
+        while try evaluateBoolean( input_string: stripWhitespace(input_string:tempString) ) {
           if stateMachine( lineArray: subRoutineArray ) == 1 {
             break
           }
@@ -198,7 +198,7 @@ func stateMachine( lineArray: [String] ) -> Int {
       let charset = CharacterSet(charactersIn: "=")
       if thisLine.rangeOfCharacter(from: charset) != nil {
         do {
-          _ = try storeVar( expression: thisLine )
+          _ = try storeVar( expression: stripWhitespace(input_string:thisLine) )
           progCounter+=1
           continue
         } catch {
