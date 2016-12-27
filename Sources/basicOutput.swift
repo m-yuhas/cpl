@@ -17,13 +17,13 @@ func basicOutput( output_text: String ) throws {
   expression.remove(at: expression.index(expression.endIndex, offsetBy:-1))
   var i=0
   while i < expression.characters.count {
-    if expression[expression.index(expression.startIndex, offsetBy:i)] == "#" {
+    if expression[expression.index(expression.startIndex, offsetBy:i)] == "#" || expression[expression.index(expression.startIndex, offsetBy:i)] == "＃" {
       i+=1
       if expression[expression.index(expression.startIndex, offsetBy:i)] == " " {
         print("# ", terminator:"")
         i+=1
         continue
-      } else if expression[expression.index(expression.startIndex, offsetBy:i)] == "#" {
+      } else if expression[expression.index(expression.startIndex, offsetBy:i)] == "#" || expression[expression.index(expression.startIndex, offsetBy:i)] == "＃" {
         print("#", terminator: "")
         i+=1
         continue
