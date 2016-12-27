@@ -157,7 +157,34 @@ func stateMachine( lineArray: [String] ) -> Int {
         break
       }
     } else if thisLine.hasPrefix("当") {
-      continue
+      let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:1)).trimmingCharacters(in: CharacterSet.whitespaces)
+      progCounter += 1
+      var loopLevel = 0
+      var subRoutineArray = [String]()
+      while true {
+        if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces).hasPrefix("当") || lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces).hasPrefix("从") {
+          loopLevel += 1
+        } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束圈" && loopLevel == 0 {
+          progCounter += 1
+          break
+        } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束圈" {
+          loopLevel -= 1
+        }
+        subRoutineArray.append(lineArray[progCounter])
+        progCounter += 1
+      }
+      do {
+        while try evaluateBoolean( input_string: tempString ) {
+          if stateMachine( lineArray: subRoutineArray ) == 1 {
+            break
+          }
+        }
+        continue
+      } catch {
+        print("错误：命令不清楚（第\(progCounter)句）")
+        print(lineArray[progCounter])
+        break
+      }
     } else if thisLine == "否则" || thisLine == "结束支" || thisLine == "结束圈" {
       print("错误：命令不清楚（第\(progCounter)句）")
       print(lineArray[progCounter])
