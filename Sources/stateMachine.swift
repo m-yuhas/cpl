@@ -31,7 +31,7 @@ func stateMachine( lineArray: [String] ) -> Int {
       }
       progCounter+=1
     } else if thisLine.hasPrefix("如果") {
-      let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2))
+      let tempString = stripWhitespace(input_string:thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:2)))
       do {
         if try evaluateBoolean( input_string: tempString.trimmingCharacters(in: CharacterSet.whitespaces) ) {
           progCounter+=1
@@ -116,7 +116,7 @@ func stateMachine( lineArray: [String] ) -> Int {
         break
       }
       //print(tempString)
-      //let initConditionString = tempString.substring(to: initCondEndIndex!.lowerBound)
+      //let initConditionString = tempString.substring(to: initCondEndIndex.lowerBound)
       let endConditionString = tempString.substring(from: tempString.index(initCondEndIndex!.lowerBound, offsetBy: 3))
       progCounter += 1
       var loopLevel = 0
@@ -135,9 +135,9 @@ func stateMachine( lineArray: [String] ) -> Int {
       }
       //print( endConditionString )
       do {
-        let CounterVarString = try storeVar( expression: tempString.substring(to: initCondEndIndex!.lowerBound) ).trimmingCharacters(in: CharacterSet.whitespaces)
+        let CounterVarString = try storeVar( expression: stripWhitespace(input_string:tempString.substring(to: initCondEndIndex!.lowerBound).trimmingCharacters(in: CharacterSet.whitespaces)))
         //print(CounterVarString)
-        let FinalCondition = try parseExpression( expression: endConditionString.trimmingCharacters(in: CharacterSet.whitespaces) )
+        let FinalCondition = try parseExpression( expression: stripWhitespace(input_string:endConditionString.trimmingCharacters(in: CharacterSet.whitespaces)) )
         outerLoop: while true {
           for i in 0..<varList.count {
             if varList[i][CounterVarString] != nil {
@@ -157,7 +157,34 @@ func stateMachine( lineArray: [String] ) -> Int {
         break
       }
     } else if thisLine.hasPrefix("当") {
-      continue
+      let tempString = thisLine.substring(from: thisLine.index(thisLine.startIndex, offsetBy:1)).trimmingCharacters(in: CharacterSet.whitespaces)
+      progCounter += 1
+      var loopLevel = 0
+      var subRoutineArray = [String]()
+      while true {
+        if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces).hasPrefix("当") || lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces).hasPrefix("从") {
+          loopLevel += 1
+        } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束圈" && loopLevel == 0 {
+          progCounter += 1
+          break
+        } else if lineArray[progCounter].trimmingCharacters(in: CharacterSet.whitespaces) == "结束圈" {
+          loopLevel -= 1
+        }
+        subRoutineArray.append(lineArray[progCounter])
+        progCounter += 1
+      }
+      do {
+        while try evaluateBoolean( input_string: stripWhitespace(input_string:tempString) ) {
+          if stateMachine( lineArray: subRoutineArray ) == 1 {
+            break
+          }
+        }
+        continue
+      } catch {
+        print("错误：命令不清楚（第\(progCounter)句）")
+        print(lineArray[progCounter])
+        break
+      }
     } else if thisLine == "否则" || thisLine == "结束支" || thisLine == "结束圈" {
       print("错误：命令不清楚（第\(progCounter)句）")
       print(lineArray[progCounter])
@@ -171,7 +198,7 @@ func stateMachine( lineArray: [String] ) -> Int {
       let charset = CharacterSet(charactersIn: "=")
       if thisLine.rangeOfCharacter(from: charset) != nil {
         do {
-          _ = try storeVar( expression: thisLine )
+          _ = try storeVar( expression: stripWhitespace(input_string:thisLine) )
           progCounter+=1
           continue
         } catch {

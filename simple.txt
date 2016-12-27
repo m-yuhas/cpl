@@ -1,5 +1,0 @@
-ascii doc
-here's multiple lines
-
-of text
-to test
