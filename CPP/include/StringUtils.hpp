@@ -3,6 +3,12 @@
 
 #include <string>
 
+/*
+StringUtils: Utilities to make string processing easier
+Public Methods:
+stripWhiteSpace - removes whitespace from the ends of a string
+removeWhiteSpaceNotInQuotes - remove whitespace not contained within quotation marks
+*/
 class StringUtils
 {
   public:

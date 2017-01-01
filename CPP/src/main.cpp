@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "../include/StringUtils.hpp"
+#include "../include/UnicodeString.hpp"
 
 int main( int argc, char *argv[] )
 {
@@ -27,12 +28,15 @@ int main( int argc, char *argv[] )
     lineVector.push_back(line);
   }
   ifstr.close();
-
-
-  for ( std::vector<std::string>::iterator it = lineVector.begin(); it != lineVector.end(); it++ ) {
+  // Loop through vector and remove uneaded whitespace
+  for ( std::vector<std::string>::iterator it = lineVector.begin(); it != lineVector.end(); it++ )
+  {
     *it = StringUtils::stripWhiteSpace( *it );
     std::cout << *it;
   }
+
+  UnicodeString ustr("使用法：$cpl <编程的名称>\n");
+  std::cout << ustr.toString();
 
 
   return EXIT_SUCCESS;

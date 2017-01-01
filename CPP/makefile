@@ -4,19 +4,25 @@
 CC = g++
 CFLAGS = -Wall -c
 LFLAGS = -Wall
-BUILDDIR = build
-SRCDIR = src
-INCLUDEDIR = include
+BUILD = build
+SRC = src
+INCLUDE = include
 TARGET = bin/cpl
 
-$(TARGET): $(BUILDDIR)/main.o $(BUILDDIR)/StringUtils.o
-	$(CC) $(LFLAGS) $(BUILDDIR)/main.o $(BUILDDIR)/StringUtils.o -o $(TARGET)
+$(TARGET): $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o
+	$(CC) $(LFLAGS) $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(TARGET)
 
-$(BUILDDIR)/main.o: $(SRCDIR)/main.cpp $(INCLUDEDIR)/StringUtils.hpp
-	$(CC) $(CFLAGS) $(SRCDIR)/main.cpp -o $(BUILDDIR)/main.o
+$(BUILD)/main.o: $(SRC)/main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp
+	$(CC) $(CFLAGS) $(SRC)/main.cpp -o $(BUILD)/main.o
 
-$(BUILDDIR)/StringUtils.o: $(INCLUDEDIR)/StringUtils.hpp $(SRCDIR)/StringUtils.cpp
-	$(CC) $(CFLAGS) $(SRCDIR)/StringUtils.cpp -o $(BUILDDIR)/StringUtils.o
+$(BUILD)/StringUtils.o: $(INCLUDE)/StringUtils.hpp $(SRC)/StringUtils.cpp
+	$(CC) $(CFLAGS) $(SRC)/StringUtils.cpp -o $(BUILD)/StringUtils.o
+
+$(BUILD)/UnicodeString.o: $(INCLUDE)/UnicodeString.hpp $(SRC)/UnicodeString.cpp $(INCLUDE)/InvalidUTF8Exception.hpp
+	$(CC) $(CFLAGS) $(SRC)/UnicodeString.cpp -o $(BUILD)/UnicodeString.o
+
+$(BUILD)/InvalidUTF8Exception.o: $(INCLUDE)/InvalidUTF8Exception.hpp $(SRC)/InvalidUTF8Exception.cpp
+	$(CC) $(CFLAGS) $(SRC)/InvalidUTF8Exception.cpp -o $(BUILD)/InvalidUTF8Exception.o
 
 clean:
-	rm $(BUILDDIR)/*.o; rm $(TARGET)
+	rm $(BUILD)/*.o; rm $(TARGET)

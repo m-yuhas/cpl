@@ -1,22 +1,25 @@
 // Invalid UTF-8 String Exception
 // (C) 2016 Michael Yuhas
+
 #include <string>
+#include "../include/InvalidUTF8Exception.hpp"
 
-using namespace std;
-
-class InvalidUTF8Exception
+/*
+Exeception Constructor: Constructs an InvalidUTF8Exception Object
+Arguments:
+str - the offending malformed UTF-8 String
+*/
+InvalidUTF8Exception::InvalidUTF8Exception( std::string str )
 {
-  public:
-    InvalidUTF8Exception( string badString );
-    string what();
-  protected:
-    string badString;
+  badString = str;
 }
 
-InvalidUTF8Exception::InvalidUTF8Exception( string badString ) {
-  this.badString = badString;
-}
-
-InvalidUTF8Exception::what() {
-  return "Invalid UTF-8 String: \"" + this.badString + "\"";
+/*
+what(): Returns a description of what went wrong
+Arguments: None
+Returns: Error Message
+*/
+std::string InvalidUTF8Exception::what()
+{
+  return "Invalid UTF-8 String: \"" + badString + "\"";
 }
