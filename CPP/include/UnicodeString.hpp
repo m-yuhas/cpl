@@ -27,8 +27,10 @@ class UnicodeString
     void getChar( int index );
     void writeChar( int index );
     void removeChar( int index );
+    void insert( int insertLocation, UnicodeString stringToInsert );
     std::string toString();
 
   protected:
     std::vector<std::string> uniString;
+    std::vector<std::string> getVector();
 };

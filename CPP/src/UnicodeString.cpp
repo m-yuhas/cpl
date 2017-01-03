@@ -109,3 +109,10 @@ std::string UnicodeString::toString()
   }
   return outputString;
 }
+
+void UnicodeString::insert( int insertLocation, UnicodeString stringToInsert )
+{
+  std::vector<std::string> insertVector = stringToInsert.getVector();
+  uniString.insert( unString.begin() + insertLocation, insertVector.begin(), insertVector.end() );
+  return;
+}
