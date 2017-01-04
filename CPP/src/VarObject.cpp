@@ -190,7 +190,40 @@ VarObject add( VarObject addend )
           throw InvalidOperationException( 1, type, addend.getType() )
       }
     case 4 :
-      break;
+      switch( addend.getType() )
+      {
+        case 1 :
+          if ( addend.getBoolVal() )
+          {
+            return VarObject( uVal.append( UnicodeString( "是" ) ) );
+          }
+          else
+          {
+            return VarObject( uVal.append( UnicodeString( "否" ) ) );
+          }
+        case 2 :
+          return VarObject( uVal.append( UnicodeString( std::to_string( addend.getIntVal() ) ) ) );
+        case 3 :
+          return VarObject( uVal.append( UnicodeString( std::to_string( addend.getDoubleVal() ) ) );
+        case 4 :
+          return VarObject( uVal.append( addend.getStringVal() ) );
+        case 5 :
+          std::vector<VarObject> newArray;
+          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          {
+            try
+            {
+              newArray.push_back( this.add( *it ) );
+            }
+            catch ( InvalidOperationException e )
+            {
+              throw e;
+            }
+          }
+          return VarObject( newArray );
+        default:
+          throw InvalidOperationException( 1, type, addend.getType() )
+      }
     case 5 :
       break;
     default:

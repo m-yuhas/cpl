@@ -116,3 +116,9 @@ void UnicodeString::insert( int insertLocation, UnicodeString stringToInsert )
   uniString.insert( unString.begin() + insertLocation, insertVector.begin(), insertVector.end() );
   return;
 }
+
+void UnicodeString::append( UnicodeString stringToAppend )
+{
+  uniString.insert( uniString.end(), stringToAppend.begin(), stringToAppend.end() );
+  return;
+}
