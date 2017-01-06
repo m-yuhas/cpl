@@ -118,7 +118,7 @@ VarObject add( VarObject addend )
           }
         case 5 :
           std::vector<VarObject> newArray;
-          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          for ( std::vector<VarObject>::iterator it = addend.getArrayVal().begin(); it != addend.getArrayVal().end(); it++ )
           {
             try
             {
@@ -131,7 +131,7 @@ VarObject add( VarObject addend )
           }
           return VarObject( newArray );
         default:
-          throw InvalidOperationException( 1, type, addend.getType() )
+          throw InvalidOperationException( 1, type, addend.getType() );
       }
     case 2 :
       switch( addend.getType() )
@@ -146,7 +146,7 @@ VarObject add( VarObject addend )
           return VarObject( std::to_string( iVal ) + addend.getStringValue() );
         case 5 :
           std::vector<VarObject> newArray;
-          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          for ( std::vector<VarObject>::iterator it = addend.getArrayVal().begin(); it != addend.getArrayVal().end(); it++ )
           {
             try
             {
@@ -159,7 +159,7 @@ VarObject add( VarObject addend )
           }
           return VarObject( newArray );
         default:
-          throw InvalidOperationException( 1, type, addend.getType() )
+          throw InvalidOperationException( 1, type, addend.getType() );
       }
     case 3 :
       switch( addend.getType() )
@@ -174,7 +174,7 @@ VarObject add( VarObject addend )
           return VarObject( std::to_string( dVal ) + addend.getStringValue() );
         case 5 :
           std::vector<VarObject> newArray;
-          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          for ( std::vector<VarObject>::iterator it = addend.getArrayVal().begin(); it != addend.getArrayVal().end(); it++ )
           {
             try
             {
@@ -187,7 +187,7 @@ VarObject add( VarObject addend )
           }
           return VarObject( newArray );
         default:
-          throw InvalidOperationException( 1, type, addend.getType() )
+          throw InvalidOperationException( 1, type, addend.getType() );
       }
     case 4 :
       switch( addend.getType() )
@@ -209,7 +209,7 @@ VarObject add( VarObject addend )
           return VarObject( uVal.append( addend.getStringVal() ) );
         case 5 :
           std::vector<VarObject> newArray;
-          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          for ( std::vector<VarObject>::iterator it = addend.getArrayVal().begin(); it != addend.getArrayVal().end(); it++ )
           {
             try
             {
@@ -222,12 +222,74 @@ VarObject add( VarObject addend )
           }
           return VarObject( newArray );
         default:
-          throw InvalidOperationException( 1, type, addend.getType() )
+          throw InvalidOperationException( 1, type, addend.getType() );
       }
     case 5 :
-      break;
-    default:
-      throw InvalidOperationException( 1, type, addend.getType() )
+      switch( addend.getType() )
+      {
+        case 1 :
+          std::vector<VarObject> newArry;
+          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          {
+            try
+            {
+              newArray.push_back( *it.add( addend.getBoolVal() ) )
+            }
+            catch ( InvalidOperationException e )
+            {
+              throw e;
+            }
+          }
+          return VarObject( newArray );
+        case 2 :
+          std::vector<VarObject> newArry;
+          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          {
+            try
+            {
+              newArray.push_back( *it.add( addend.getIntVal() ) )
+            }
+            catch ( InvalidOperationException e )
+            {
+              throw e;
+            }
+          }
+          return VarObject( newArray );
+        case 3 :
+          std::vector<VarObject> newArry;
+          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          {
+            try
+            {
+              newArray.push_back( *it.add( addend.getDoubleVal() ) )
+            }
+            catch ( InvalidOperationException e )
+            {
+              throw e;
+            }
+          }
+          return VarObject( newArray );
+        case 4 :
+          std::vector<VarObject> newArry;
+          for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
+          {
+            try
+            {
+              newArray.push_back( *it.add( addend.getStringValue() ) )
+            }
+            catch ( InvalidOperationException e )
+            {
+              throw e;
+            }
+          }
+          return VarObject( newArray );
+        case 5 :
+          return VarObject( arrVal.insert( arrVal.end(), addend.getArrayVal().begin(), addend.getArrayVal().end() );
+        default :
+          throw InvalidOperationException( 1, type, addend.getType() );
+      }
+    default :
+      throw InvalidOperationException( 1, type, addend.getType() );
   }
-  return;
+  throw InvalidOperationException( 1, type, addend.getType() );
 }
