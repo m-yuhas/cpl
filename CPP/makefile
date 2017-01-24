@@ -9,6 +9,7 @@ SRC = src
 INCLUDE = include
 TARGET = bin/cpl
 
+all: $(TARGET)
 $(TARGET): $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o
 	$(CC) $(LFLAGS) $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(TARGET)
 
@@ -26,3 +27,10 @@ $(BUILD)/InvalidUTF8Exception.o: $(INCLUDE)/InvalidUTF8Exception.hpp $(SRC)/Inva
 
 clean:
 	rm $(BUILD)/*.o; rm $(TARGET)
+
+test: bin/test
+bin/test: $(BUILD)/StringUtils.o $(BUILD)/tests.o
+	$(CC) $(LFLAGS) $(BUILD)/tests.o $(BUILD)/StringUtils.o -o bin/test -lgtest -lgtest_main -googleTest -lpthread
+
+$(BUILD)/tests.o: $(SRC)/tests.cpp $(INCLUDE)/StringUtils.hpp
+	$(CC) -lpthread $(CFLAGS) $(SRC)/tests.cpp -o $(BUILD)/tests.o -lgtest -lgtest_main -googleTest
