@@ -12,7 +12,7 @@ Returns: A string with whitespace removed
 */
 std::string StringUtils::stripWhiteSpace( std::string inputString )
 {
-  int startIndex = 0;
+  unsigned int startIndex = 0;
   // Iterate from front of string until non whitespace character found
   for ( std::string::iterator it = inputString.begin(); it != inputString.end(); it++ )
   {
@@ -27,13 +27,13 @@ std::string StringUtils::stripWhiteSpace( std::string inputString )
     }
   }
   // Iterate from back of string until non whitespace character found
-  int endIndex = inputString.length()-1;
+  unsigned int charsFromEnd = 0;
   for ( std::string::iterator it = inputString.end(); it != inputString.begin(); it-- )
   {
     // Check if character is whitespace
     if ( *it == '\t' || *it == ' ' )
     {
-      endIndex--;
+      charsFromEnd++;
     }
     else
     {
@@ -41,10 +41,10 @@ std::string StringUtils::stripWhiteSpace( std::string inputString )
     }
   }
   // If the string is all whitespace return an empty string
-  if ( startIndex >= endIndex ) {
+  if ( startIndex >= inputString.length()-2-charsFromEnd ) {
     return "";
   }
-  return inputString.substr( startIndex, endIndex );
+  return inputString.substr( startIndex, inputString.length()-2-charsFromEnd-startIndex );
 }
 
 /*

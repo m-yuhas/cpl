@@ -4,14 +4,16 @@
 CC = g++
 CFLAGS = -Wall -c
 LFLAGS = -Wall
+TFLAGS = -lgtest -lgtest_main -lpthread
 BUILD = build
 SRC = src
 INCLUDE = include
-TARGET = bin/cpl
+TEST = test
+BIN = bin
 
-all: $(TARGET)
-$(TARGET): $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o
-	$(CC) $(LFLAGS) $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(TARGET)
+all: $(BIN)/cpl
+$(BIN)/cpl: $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o
+	$(CC) $(LFLAGS) $(BUILD)/main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(BIN)/cpl
 
 $(BUILD)/main.o: $(SRC)/main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp
 	$(CC) $(CFLAGS) $(SRC)/main.cpp -o $(BUILD)/main.o
@@ -26,11 +28,11 @@ $(BUILD)/InvalidUTF8Exception.o: $(INCLUDE)/InvalidUTF8Exception.hpp $(SRC)/Inva
 	$(CC) $(CFLAGS) $(SRC)/InvalidUTF8Exception.cpp -o $(BUILD)/InvalidUTF8Exception.o
 
 clean:
-	rm $(BUILD)/*.o; rm $(TARGET)
+	rm $(BUILD)/*.o; rm $(BIN)/*
 
-test: bin/test
-bin/test: $(BUILD)/StringUtils.o $(BUILD)/tests.o
-	$(CC) $(LFLAGS) $(BUILD)/tests.o $(BUILD)/StringUtils.o -o bin/test -lgtest -lgtest_main -googleTest -lpthread
+test: $(BIN)/test
+$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/test_main.o
+	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o -o $(BIN)/test $(TFLAGS)
 
-$(BUILD)/tests.o: $(SRC)/tests.cpp $(INCLUDE)/StringUtils.hpp
-	$(CC) -lpthread $(CFLAGS) $(SRC)/tests.cpp -o $(BUILD)/tests.o -lgtest -lgtest_main -googleTest
+$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp
+	$(CC) $(CFLAGS) $(TEST)/test_main.cpp -o $(BUILD)/test_main.o $(TFLAGS)
