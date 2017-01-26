@@ -110,15 +110,21 @@ std::string UnicodeString::toString()
   return outputString;
 }
 
+std::vector<std::string> UnicodeString::getVector()
+{
+  return uniString;
+}
+
 void UnicodeString::insert( int insertLocation, UnicodeString stringToInsert )
 {
   std::vector<std::string> insertVector = stringToInsert.getVector();
-  uniString.insert( unString.begin() + insertLocation, insertVector.begin(), insertVector.end() );
+  uniString.insert( uniString.begin() + insertLocation, insertVector.begin(), insertVector.end() );
   return;
 }
 
 void UnicodeString::append( UnicodeString stringToAppend )
 {
-  uniString.insert( uniString.end(), stringToAppend.begin(), stringToAppend.end() );
+  std::vector<std::string> appendVector = stringToAppend.getVector();
+  uniString.insert( uniString.end(), appendVector.begin(), appendVector.end() );
   return;
 }

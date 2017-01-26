@@ -31,8 +31,8 @@ clean:
 	rm $(BUILD)/*.o; rm $(BIN)/*
 
 test: $(BIN)/test
-$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/test_main.o
-	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o -o $(BIN)/test $(TFLAGS)
+$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/test_main.o
+	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(BIN)/test $(TFLAGS)
 
-$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp
+$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/InvalidUTF8Exception.hpp
 	$(CC) $(CFLAGS) $(TEST)/test_main.cpp -o $(BUILD)/test_main.o $(TFLAGS)
