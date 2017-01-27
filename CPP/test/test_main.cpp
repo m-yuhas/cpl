@@ -2,6 +2,8 @@
 #include "../include/StringUtils.hpp"
 #include "../include/UnicodeString.hpp"
 #include "../include/InvalidUTF8Exception.hpp"
+#include "../include/VarObject.hpp"
+#include "../include/InvalidOperationException.hpp"
 
 TEST( StringUtils, StripWhiteSpaceFromBeginningAndEnd )
 {
@@ -10,7 +12,7 @@ TEST( StringUtils, StripWhiteSpaceFromBeginningAndEnd )
 
 TEST( StringUtils, StripWhiteSpaceFromAllWhitespaceString )
 {
-  EXPECT_EQ("",StringUtils::stripWhiteSpace("  "));
+  EXPECT_EQ("",StringUtils::stripWhiteSpace("  "));被加的字符串
 }
 
 TEST( UnicodeString, ContructorWithInvalidSingleByteCharacter )
@@ -122,6 +124,11 @@ TEST( UnicodeString, Append )
   {
     FAIL() << "Did Not Expect Exception";
   }
+}
+
+TEST( VarObject, BooleanConstructor )
+{
+  
 }
 
 int main(int argc, char **argv) {

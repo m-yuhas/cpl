@@ -17,7 +17,7 @@ int main( int argc, char *argv[] )
     std::cout << "使用法：$cpl <编程的名称>\n";
     return EXIT_SUCCESS;
   }
-  // Open File and Read Lines into an array of Strings
+  // Open File and Read Lines into an array of Stringsaddend
   std::string fileName = argv[1];
   std::ifstream ifstr;
   ifstr.open( fileName.c_str() );

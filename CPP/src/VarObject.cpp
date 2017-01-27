@@ -293,3 +293,233 @@ VarObject add( VarObject addend )
   }
   throw InvalidOperationException( 1, type, addend.getType() );
 }
+
+bool equals( VarObject var )
+{
+  switch( type )
+  {
+    case 1 :
+      switch( var.getType() )
+      {
+        case 1 :
+          return bVal == var.getBoolVal();
+        case 2 :
+          return (int)bVal == var.getIntVal();
+        case 3 :
+          return (double)bVal == var.getDoubleVal();
+        case 4 :
+          if ( bVal )
+          {
+            if ( std::string("是").compare( var.getStringVal().toString() ) == 0 )
+            {
+              return true;
+            }
+            else
+            {
+              return false;
+            }
+          }
+          else
+          {
+            if ( std::string("否").compare( var.getStringVal().toString() ) == 0 )
+            {
+              return true;
+            }
+            else
+            {
+              return false;
+            }
+          }
+        case 5 :
+          if ( var.getArrayVal().size() == 1 )
+          {
+            return this.equals(var.getArrayVal().front());
+          }
+          else
+          {
+            return false;
+          }
+        default:
+          throw InvalidOperationException( 101, type, var.getType() );
+      }
+    case 2 :
+      switch( var.getType() )
+      {
+        case 1 :
+          return iVal == (int)var.getBoolVal();
+        case 2 :
+          return iVal == var.getIntVal();
+        case 3 :
+          return (double)iVal == var.getDoubleVal();
+        case 4 :
+          if ( std::to_string( iVal ).compare( var.getStringVal().toString() ) == 0 )
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        case 5 :
+          if ( var.getArrayVal().size() == 1 )
+          {
+            return this.equals(var.getArrayVal().front());
+          }
+          else
+          {
+            return false;
+          }
+        default:
+          throw InvalidOperationException( 101, type, var.getType() );
+      }
+    case 3 :
+      switch( var.getType() )
+      {
+        case 1 :
+          return dVal == (double)addend.getBoolVal();
+        case 2 :
+          return dVal == (double)addend.getIntVal();
+        case 3 :
+          return dVal == addend.getDoubleVal();
+        case 4 :
+          if ( std::to_string( dVal ).compare( var.getStringVal().toString() ) == 0 )
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        case 5 :
+          if ( var.getArrayVal().size() == 1 )
+          {
+            return this.equals(var.getArrayVal().front());
+          }
+          else
+          {
+            return false;
+          }
+        default:
+          throw InvalidOperationException( 101, type, var.getType() );
+      }
+    case 4 :
+      switch( var.getType() )
+      {
+        case 1 :
+          if ( var.getBoolVal() )
+          {
+            if ( uVal.toString().compare( std::string("是") ) == 0 )
+            {
+              return true
+            }
+            else
+            {
+              return false
+            }
+          }
+          else
+          {
+            if ( uVal.toString().compare( std::string("否") ) == 0 )
+            {
+              return true
+            }
+            else
+            {
+              return false
+            }
+          }
+        case 2 :
+          if ( uVal.toString().compare( std::to_string( var.getIntVal() ) ) == 0 )
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        case 3 :
+          if ( uVal.toString().compare( std::to_string( var.getDoubleVal() ) ) == 0 )
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        case 4 :
+          if ( uVal.toString().compare( std::to_string( var.getStringVal().toString() ) ) == 0 )
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        case 5 :
+          if ( var.getArrayVal().size() == 1 )
+          {
+            return this.equals(var.getArrayVal().front());
+          }
+          else
+          {
+            return false;
+          }
+        default:
+          throw InvalidOperationException( 101, type, var.getType() );
+      }
+    case 5 :
+      switch( var.getType() )
+      {
+        case 1 :
+          if( arrVal.size() == 1 )
+          {
+            return arrVal.front().equals(var);
+          }
+          else
+          {
+            return false;
+          }
+        case 2 :
+          if( arrVal.size() == 1 )
+          {
+            return arrVal.front().equals(var);
+          }
+          else
+          {
+            return false;
+          }
+        case 3 :
+          if( arrVal.size() == 1 )
+          {
+            return arrVal.front().equals(var);
+          }
+          else
+          {
+            return false;
+          }
+        case 4 :
+          if( arrVal.size() == 1 )
+          {
+            return arrVal.front().equals(var);
+          }
+          else
+          {
+            return false;
+          }
+        case 5 :
+          if ( arrVal.size() == var.getArrayVal().size() )
+          {
+            //todo: find out how to implement looping through two vectors at once
+          }
+          else
+          {
+            return false;
+          }
+        default :
+          throw InvalidOperationException( 101, type, var.getType() );
+      }
+    default :
+      throw InvalidOperationException( 101, type, var.getType() );
+  }
+  throw InvalidOperationException( 101, type, var.getType() );
+}

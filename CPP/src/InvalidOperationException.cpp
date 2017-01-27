@@ -8,6 +8,7 @@
 Exeception Constructor: Constructs an InvalidOperationException Object
 Arguments:
 optype - 1=add, 2=sub, 3=mul, 4=div, 5=mod, 6=exp, 7=fac
+optype - 101=equals, 102=not equals, 103=greater than, 104=less than, 105=gte, 106=lte
 arg1type - data type of caller object: 1=bool, 2=int, 3=double, 4=string, 5=array
 arg2type - data type of callee object: 1=bool, 2=int, 3=double, 4=string, 5=array
 */
@@ -51,6 +52,15 @@ std::string InvalidUTF8Exception::what()
       break;
     case 7 :
       opString = "!";
+      break;
+    case 101 :
+      opString = "=";
+      break;
+    case 103 :
+      opString = ">";
+      break;
+    case 104 :
+      opString = "<";
       break;
     default :
       opString = "Unknown Operation Type";

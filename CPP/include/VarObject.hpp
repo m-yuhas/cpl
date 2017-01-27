@@ -30,6 +30,12 @@ class VarObject
     VarObject mod( VarObject divisor );
     VarObject exp( VarObject exponent );
     VarObject fac();
+    bool equals( VarObject var );
+    bool notEquals( VarObject var );
+    bool greaterThan( VarObject var );
+    bool lessThan( VarObject var );
+    bool greaterThanOrEquals( VarObject var );
+    bool lessThanOrEquals( VarObject var );
   protected:
     char type;
     bool bVal;
