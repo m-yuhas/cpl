@@ -27,12 +27,15 @@ $(BUILD)/UnicodeString.o: $(INCLUDE)/UnicodeString.hpp $(SRC)/UnicodeString.cpp 
 $(BUILD)/InvalidUTF8Exception.o: $(INCLUDE)/InvalidUTF8Exception.hpp $(SRC)/InvalidUTF8Exception.cpp
 	$(CC) $(CFLAGS) $(SRC)/InvalidUTF8Exception.cpp -o $(BUILD)/InvalidUTF8Exception.o
 
+$(BUILD)/VarObject.o: $(INCLUDE)/VarObject.hpp $(SRC)/VarObject.cpp $(INCLUDE)/UnicodeString.hpp
+	$(CC) $(CFLAGS) $(SRC)/VarObject.cpp -o $(BUILD)/VarObject.o
+
 clean:
 	rm $(BUILD)/*.o; rm $(BIN)/*
 
 test: $(BIN)/test
-$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/test_main.o
-	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/InvalidUTF8Exception.o -o $(BIN)/test $(TFLAGS)
+$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/test_main.o
+	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o -o $(BIN)/test $(TFLAGS)
 
-$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/InvalidUTF8Exception.hpp
+$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/VarObject.hpp $(INCLUDE)/InvalidUTF8Exception.hpp
 	$(CC) $(CFLAGS) $(TEST)/test_main.cpp -o $(BUILD)/test_main.o $(TFLAGS)

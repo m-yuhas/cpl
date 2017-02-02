@@ -7,6 +7,12 @@
 #include "../include/UnicodeString.hpp"
 #include "../include/InvalidUTF8Exception.hpp"
 
+
+UnicodeString::UnicodeString()
+{
+  
+}
+
 /*
 UnicodeString: Constructor for UnicodeString Object
 Arguments:

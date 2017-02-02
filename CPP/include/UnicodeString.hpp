@@ -1,6 +1,7 @@
 // Test Class to Implement Unicode Strings in CPP
 // (C) 2016 Michael Yuhas
 
+#pragma once
 #include <vector>
 #include <string>
 #include "../include/InvalidUTF8Exception.hpp"
@@ -21,6 +22,7 @@ uniString - a vector of strings, each representing a unicode character
 class UnicodeString
 {
   public:
+    UnicodeString();
     UnicodeString( std::string inputString );
     void append( UnicodeString stringToAppend );
     void substring( UnicodeString substring );
