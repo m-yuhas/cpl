@@ -40,5 +40,5 @@ test: $(BIN)/test
 $(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/InvalidOperationException.o $(BUILD)/test_main.o
 	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/InvalidOperationException.o -o $(BIN)/test $(TFLAGS)
 
-$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/VarObject.hpp $(INCLUDE)/InvalidUTF8Exception.hpp $(INCLUDE)/InvalidOperationException.hpp
+$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/VarObject.hpp $(INCLUDE)/InvalidUTF8Exception.hpp $(INCLUDE)/InvalidOperationException.hpp $(TEST)/test_VarObject.cpp $(TEST)/test_StringUtils.cpp $(TEST)/test_UnicodeString.cpp
 	$(CC) $(CFLAGS) $(TEST)/test_main.cpp -o $(BUILD)/test_main.o $(TFLAGS)

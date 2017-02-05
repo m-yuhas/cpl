@@ -1,6 +1,7 @@
 // This class defines an Object to Store a Variable
 // (C) 2016 Michael Yuhas
 
+#include <iostream>
 #include "../include/VarObject.hpp"
 //#include "../include/UnicodeString.hpp"
 //#include "../include/StringUtils.hpp"
@@ -378,6 +379,12 @@ VarObject VarObject::add( VarObject addend )
   throw InvalidOperationException( 1, type, addend.getType() );
 }
 
+VarObject VarObject::sub( VarObject var )
+{
+  //TODO: Implement This
+  return VarObject( false );
+}
+
 
 bool VarObject::equals( VarObject var )
 {
@@ -658,11 +665,14 @@ bool VarObject::equals( VarObject var )
         }
         case 5 :
         {
+          std::cout << "HERE";
           if ( arrVal.size() == var.getArrayVal().size() )
           {
             std::vector<VarObject>::iterator it2 = var.getArrayVal().begin();
             for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
             {
+              std::cout << "Array Member Type 1 " << std::to_string((*it).getType());
+              std::cout << "Array Member Type 2 " << std::to_string((*it2).getType());
               if ( ! (*it).equals( *it2 ) )
               {
                 return false;
