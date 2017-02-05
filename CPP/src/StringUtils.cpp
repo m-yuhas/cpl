@@ -2,6 +2,7 @@
 // (C) 2016 Michael Yuhas
 
 #include <string>
+#include <sstream>
 #include "../include/StringUtils.hpp"
 
 /*

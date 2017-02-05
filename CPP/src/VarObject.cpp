@@ -2,8 +2,9 @@
 // (C) 2016 Michael Yuhas
 
 #include "../include/VarObject.hpp"
-#include "../include/UnicodeString.hpp"
-#include "../include/InvalidOperationException.hpp"
+//#include "../include/UnicodeString.hpp"
+//#include "../include/StringUtils.hpp"
+//s#include "../include/InvalidOperationException.hpp"
 
 
 VarObject::VarObject( bool b )
@@ -145,6 +146,7 @@ VarObject VarObject::add( VarObject addend )
         {
           throw InvalidOperationException( 1, type, addend.getType() );
         }
+      }
     }
     case 2 :
     {
@@ -164,7 +166,7 @@ VarObject VarObject::add( VarObject addend )
         }
         case 4 :
         {
-          return VarObject( std::to_string( iVal ) + addend.getStringValue() );
+          return VarObject( std::to_string( iVal ) + addend.getUStringVal().toString() );
         }
         case 5 :
         {
@@ -187,6 +189,7 @@ VarObject VarObject::add( VarObject addend )
           throw InvalidOperationException( 1, type, addend.getType() );
         }
       }
+    }
     case 3 :
     {
       switch( addend.getType() )
@@ -205,7 +208,7 @@ VarObject VarObject::add( VarObject addend )
         }
         case 4 :
         {
-          return VarObject( std::to_string( dVal ) + addend.getStringValue() );
+          return VarObject( std::to_string( dVal ) + addend.getUStringVal().toString() );
         }
         case 5 :
         {
@@ -221,13 +224,13 @@ VarObject VarObject::add( VarObject addend )
               throw e;
             }
           }
-          return VarObject( newArray );
         }
         default:
         {
           throw InvalidOperationException( 1, type, addend.getType() );
         }
       }
+    }
     case 4 :
     {
       switch( addend.getType() )
@@ -249,15 +252,21 @@ VarObject VarObject::add( VarObject addend )
         }
         case 2 :
         {
-          return VarObject( uVal.append( UnicodeString( std::to_string( addend.getIntVal() ) ) ) );
+          UnicodeString returnString = uVal;
+          returnString.append( UnicodeString( std::to_string( addend.getIntVal() ) ) );
+          return VarObject( returnString );
         }
         case 3 :
         {
-          return VarObject( uVal.append( UnicodeString( std::to_string( addend.getDoubleVal() ) ) );
+          UnicodeString returnString = uVal;
+          returnString.append( UnicodeString( std::to_string( addend.getDoubleVal() ) ) );
+          return VarObject( returnString );
         }
         case 4 :
         {
-          return VarObject( uVal.append( addend.getStringVal() ) );
+          UnicodeString returnString = uVal;
+          returnString.append( addend.getUStringVal() );
+          return VarObject( returnString );
         }
         case 5 :
         {
@@ -280,18 +289,19 @@ VarObject VarObject::add( VarObject addend )
           throw InvalidOperationException( 1, type, addend.getType() );
         }
       }
+    }
     case 5 :
     {
       switch( addend.getType() )
       {
         case 1 :
         {
-          std::vector<VarObject> newArry;
+          std::vector<VarObject> newArray;
           for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
           {
             try
             {
-              newArray.push_back( *it.add( addend.getBoolVal() ) )
+              newArray.push_back( (*it).add( addend.getBoolVal() ) );
             }
             catch ( InvalidOperationException e )
             {
@@ -302,12 +312,12 @@ VarObject VarObject::add( VarObject addend )
         }
         case 2 :
         {
-          std::vector<VarObject> newArry;
+          std::vector<VarObject> newArray;
           for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
           {
             try
             {
-              newArray.push_back( *it.add( addend.getIntVal() ) )
+              newArray.push_back( (*it).add( addend.getIntVal() ) );
             }
             catch ( InvalidOperationException e )
             {
@@ -318,12 +328,12 @@ VarObject VarObject::add( VarObject addend )
         }
         case 3 :
         {
-          std::vector<VarObject> newArry;
+          std::vector<VarObject> newArray;
           for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
           {
             try
             {
-              newArray.push_back( *it.add( addend.getDoubleVal() ) )
+              newArray.push_back( (*it).add( addend.getDoubleVal() ) );
             }
             catch ( InvalidOperationException e )
             {
@@ -334,12 +344,12 @@ VarObject VarObject::add( VarObject addend )
         }
         case 4 :
         {
-          std::vector<VarObject> newArry;
+          std::vector<VarObject> newArray;
           for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
           {
             try
             {
-              newArray.push_back( *it.add( addend.getStringValue() ) )
+              newArray.push_back( (*it).add( addend.getUStringVal() ) );
             }
             catch ( InvalidOperationException e )
             {
@@ -350,13 +360,16 @@ VarObject VarObject::add( VarObject addend )
         }
         case 5 :
         {
-          return VarObject( arrVal.insert( arrVal.end(), addend.getArrayVal().begin(), addend.getArrayVal().end() );
+          std::vector<VarObject> returnArray = arrVal;
+          returnArray.insert(arrVal.end(), addend.getArrayVal().begin(), addend.getArrayVal().end());
+          return VarObject( returnArray );
         }
         default :
         {
           throw InvalidOperationException( 1, type, addend.getType() );
         }
       }
+    }
     default :
     {
       throw InvalidOperationException( 1, type, addend.getType() );
@@ -371,18 +384,26 @@ bool VarObject::equals( VarObject var )
   switch( type )
   {
     case 1 :
+    {
       switch( var.getType() )
       {
         case 1 :
+        {
           return bVal == var.getBoolVal();
+        }
         case 2 :
+        {
           return (int)bVal == var.getIntVal();
+        }
         case 3 :
+        {
           return (double)bVal == var.getDoubleVal();
+        }
         case 4 :
+        {
           if ( bVal )
           {
-            if ( std::string("是").compare( var.getStringVal().toString() ) == 0 )
+            if ( std::string("是").compare( var.getUStringVal().toString() ) == 0 )
             {
               return true;
             }
@@ -393,7 +414,7 @@ bool VarObject::equals( VarObject var )
           }
           else
           {
-            if ( std::string("否").compare( var.getStringVal().toString() ) == 0 )
+            if ( std::string("否").compare( var.getUStringVal().toString() ) == 0 )
             {
               return true;
             }
@@ -402,7 +423,9 @@ bool VarObject::equals( VarObject var )
               return false;
             }
           }
+        }
         case 5 :
+        {
           if ( var.getArrayVal().size() == 1 )
           {
             return this->equals(var.getArrayVal().front());
@@ -410,31 +433,43 @@ bool VarObject::equals( VarObject var )
           else
           {
             return false;
-          }            UnicodeString returnString = addend.getUStringVal();
-            returnString.insert( 0, UnicodeString("是") );
-            return VarObject( returnString );
+          }
+        }
         default:
+        {
           throw InvalidOperationException( 101, type, var.getType() );
+        }
       }
+    }
     case 2 :
+    {
       switch( var.getType() )
       {
         case 1 :
+        {
           return iVal == (int)var.getBoolVal();
+        }
         case 2 :
+        {
           return iVal == var.getIntVal();
+        }
         case 3 :
+        {
           return (double)iVal == var.getDoubleVal();
+        }
         case 4 :
-          if ( std::to_string( iVal ).compare( var.getStringVal().toString() ) == 0 )
+        {
+          if ( std::to_string( iVal ).compare( var.getUStringVal().toString() ) == 0 )
           {
-            return true
+            return true;
           }
           else
           {
-            return false
+            return false;
           }
+        }
         case 5 :
+        {
           if ( var.getArrayVal().size() == 1 )
           {
             return this->equals(var.getArrayVal().front());
@@ -443,28 +478,42 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         default:
+        {
           throw InvalidOperationException( 101, type, var.getType() );
+        }
       }
+    }
     case 3 :
+    {
       switch( var.getType() )
       {
         case 1 :
-          return dVal == (double)addend.getBoolVal();
+        {
+          return dVal == (double)var.getBoolVal();
+        }
         case 2 :
-          return dVal == (double)addend.getIntVal();
+        {
+          return dVal == (double)var.getIntVal();
+        }
         case 3 :
-          return dVal == addend.getDoubleVal();
+        {
+          return dVal == var.getDoubleVal();
+        }
         case 4 :
-          if ( std::to_string( dVal ).compare( var.getStringVal().toString() ) == 0 )
+        {
+          if ( std::to_string( dVal ).compare( var.getUStringVal().toString() ) == 0 )
           {
-            return true
+            return true;
           }
           else
           {
-            return false
+            return false;
           }
+        }
         case 5 :
+        {
           if ( var.getArrayVal().size() == 1 )
           {
             return this->equals(var.getArrayVal().front());
@@ -473,36 +522,44 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         default:
+        {
           throw InvalidOperationException( 101, type, var.getType() );
+        }
       }
+    }
     case 4 :
+    {
       switch( var.getType() )
       {
         case 1 :
+        {
           if ( var.getBoolVal() )
           {
             if ( uVal.toString().compare( std::string("是") ) == 0 )
             {
-              return true
+              return true;
             }
             else
             {
-              return false
+              return false;
             }
           }
           else
           {
             if ( uVal.toString().compare( std::string("否") ) == 0 )
             {
-              return true
+              return true;
             }
             else
             {
-              return false
+              return false;
             }
           }
+        }
         case 2 :
+        {
           if ( uVal.toString().compare( std::to_string( var.getIntVal() ) ) == 0 )
           {
             return true;
@@ -511,7 +568,9 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 3 :
+        {
           if ( uVal.toString().compare( std::to_string( var.getDoubleVal() ) ) == 0 )
           {
             return true;
@@ -520,8 +579,10 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 4 :
-          if ( uVal.toString().compare( std::to_string( var.getStringVal().toString() ) ) == 0 )
+        {
+          if ( uVal.toString().compare( var.getUStringVal().toString() ) == 0 )
           {
             return true;
           }
@@ -529,7 +590,9 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 5 :
+        {
           if ( var.getArrayVal().size() == 1 )
           {
             return this->equals(var.getArrayVal().front());
@@ -538,13 +601,19 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         default:
+        {
           throw InvalidOperationException( 101, type, var.getType() );
+        }
       }
+    }
     case 5 :
+    {
       switch( var.getType() )
       {
         case 1 :
+        {
           if( arrVal.size() == 1 )
           {
             return arrVal.front().equals(var);
@@ -553,7 +622,9 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 2 :
+        {
           if( arrVal.size() == 1 )
           {
             return arrVal.front().equals(var);
@@ -562,7 +633,9 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 3 :
+        {
           if( arrVal.size() == 1 )
           {
             return arrVal.front().equals(var);
@@ -571,7 +644,9 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 4 :
+        {
           if( arrVal.size() == 1 )
           {
             return arrVal.front().equals(var);
@@ -580,17 +655,19 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         case 5 :
+        {
           if ( arrVal.size() == var.getArrayVal().size() )
           {
-            std::vector<VarObject>::iterator it2 = var.getArrayVal().begin()
+            std::vector<VarObject>::iterator it2 = var.getArrayVal().begin();
             for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
             {
-              if ( ! *it.equals( *it2 ) )
+              if ( ! (*it).equals( *it2 ) )
               {
                 return false;
               }
-              it2++
+              it2++;
             }
             return true;
           }
@@ -598,11 +675,17 @@ bool VarObject::equals( VarObject var )
           {
             return false;
           }
+        }
         default :
+        {
           throw InvalidOperationException( 101, type, var.getType() );
+        }
       }
+    }
     default :
+    {
       throw InvalidOperationException( 101, type, var.getType() );
+    }
   }
   throw InvalidOperationException( 101, type, var.getType() );
 }

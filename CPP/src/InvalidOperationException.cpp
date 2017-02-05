@@ -24,7 +24,7 @@ what(): Returns a description of what went wrong
 Arguments: None
 Returns: Error Message
 */
-std::string InvalidUTF8Exception::what()
+std::string InvalidOperationException::what()
 {
   std::string opString;
   std::string arg1String;

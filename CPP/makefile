@@ -2,7 +2,7 @@
 # (C) 2016 Michael Yuhas
 
 CC = g++
-CFLAGS = -Wall -c
+CFLAGS = -Wall -c -std=c++11
 LFLAGS = -Wall
 TFLAGS = -lgtest -lgtest_main -lpthread
 BUILD = build
@@ -27,15 +27,18 @@ $(BUILD)/UnicodeString.o: $(INCLUDE)/UnicodeString.hpp $(SRC)/UnicodeString.cpp 
 $(BUILD)/InvalidUTF8Exception.o: $(INCLUDE)/InvalidUTF8Exception.hpp $(SRC)/InvalidUTF8Exception.cpp
 	$(CC) $(CFLAGS) $(SRC)/InvalidUTF8Exception.cpp -o $(BUILD)/InvalidUTF8Exception.o
 
-$(BUILD)/VarObject.o: $(INCLUDE)/VarObject.hpp $(SRC)/VarObject.cpp $(INCLUDE)/UnicodeString.hpp
+$(BUILD)/VarObject.o: $(INCLUDE)/VarObject.hpp $(SRC)/VarObject.cpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/InvalidOperationException.hpp
 	$(CC) $(CFLAGS) $(SRC)/VarObject.cpp -o $(BUILD)/VarObject.o
+
+$(BUILD)/InvalidOperationException.o: $(INCLUDE)/InvalidOperationException.hpp $(SRC)/InvalidOperationException.cpp
+	$(CC) $(CFLAGS) $(SRC)/InvalidOperationException.cpp -o $(BUILD)/InvalidOperationException.o
 
 clean:
 	rm $(BUILD)/*.o; rm $(BIN)/*
 
 test: $(BIN)/test
-$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/test_main.o
-	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o -o $(BIN)/test $(TFLAGS)
+$(BIN)/test: $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/InvalidOperationException.o $(BUILD)/test_main.o
+	$(CC) $(LFLAGS) $(BUILD)/test_main.o $(BUILD)/StringUtils.o $(BUILD)/UnicodeString.o $(BUILD)/VarObject.o $(BUILD)/InvalidUTF8Exception.o $(BUILD)/InvalidOperationException.o -o $(BIN)/test $(TFLAGS)
 
-$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/VarObject.hpp $(INCLUDE)/InvalidUTF8Exception.hpp
+$(BUILD)/test_main.o: $(TEST)/test_main.cpp $(INCLUDE)/StringUtils.hpp $(INCLUDE)/UnicodeString.hpp $(INCLUDE)/VarObject.hpp $(INCLUDE)/InvalidUTF8Exception.hpp $(INCLUDE)/InvalidOperationException.hpp
 	$(CC) $(CFLAGS) $(TEST)/test_main.cpp -o $(BUILD)/test_main.o $(TFLAGS)
