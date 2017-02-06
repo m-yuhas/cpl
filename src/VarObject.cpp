@@ -665,14 +665,13 @@ bool VarObject::equals( VarObject var )
         }
         case 5 :
         {
-          std::cout << "HERE";
           if ( arrVal.size() == var.getArrayVal().size() )
           {
             std::vector<VarObject>::iterator it2 = var.getArrayVal().begin();
             for ( std::vector<VarObject>::iterator it = arrVal.begin(); it != arrVal.end(); it++ )
             {
-              std::cout << "Array Member Type 1 " << std::to_string((*it).getType());
-              std::cout << "Array Member Type 2 " << std::to_string((*it2).getType());
+              //std::cout << "Array Member Type 1 " << std::to_string((*it).getType());
+              //std::cout << "Array Member Type 2 " << std::to_string((*it2).getType());
               if ( ! (*it).equals( *it2 ) )
               {
                 return false;

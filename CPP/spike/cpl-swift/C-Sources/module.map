@@ -1,5 +1,0 @@
-module readFile [system] {
-	header "readFile.h"
-	export *
-}
-

@@ -32,9 +32,11 @@ TEST( VarObjectConstructors, StringConstructor )
 TEST( VarObjectConstructors, ArrayConstructor )
 {
   std::vector<VarObject> arr;
+  std::vector<VarObject> arr2;
   arr.push_back( VarObject( true ) );
+  arr2.push_back( VarObject( true ) );
   VarObject arrObj( arr );
-  VarObject arrObj2( arr );
+  VarObject arrObj2( arr2 );
   try
   {
     EXPECT_EQ( true, arrObj.equals( arrObj2 ) );
