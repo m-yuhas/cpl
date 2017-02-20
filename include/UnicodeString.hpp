@@ -25,14 +25,15 @@ class UnicodeString
     UnicodeString();
     UnicodeString( std::string inputString );
     void append( UnicodeString stringToAppend );
-    void substring( UnicodeString substring );
-    void getChar( int index );
+    UnicodeString substring( int startIndex, int endIndex );
+    int length();
+    std::string getChar( int index );
     void writeChar( int index );
     void removeChar( int index );
     void insert( int insertLocation, UnicodeString stringToInsert );
     std::string toString();
-
+    std::vector<std::string> getVector();
   protected:
     std::vector<std::string> uniString;
-    std::vector<std::string> getVector();
+
 };

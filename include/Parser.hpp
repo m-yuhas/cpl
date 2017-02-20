@@ -10,6 +10,7 @@ class Parser
 {
   public:
     static VarObject evaluateExpression( UnicodeString expression );
+    static VarObject Parser::evaluateExpressionBoolean( UnicodeString expression );
   private:
     static VarObject evaluateAtom( UnicodeString expression );
 };

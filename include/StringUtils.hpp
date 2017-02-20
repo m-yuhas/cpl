@@ -14,4 +14,5 @@ class StringUtils
   public:
     static std::string stripWhiteSpace( std::string inputString );
     static std::string removeWhiteSpaceNotInQuotes( std::string inputString );
+    static std::string stod( std::string inputString );
 };

@@ -10,7 +10,7 @@
 
 UnicodeString::UnicodeString()
 {
-  
+
 }
 
 /*
@@ -133,4 +133,21 @@ void UnicodeString::append( UnicodeString stringToAppend )
   std::vector<std::string> appendVector = stringToAppend.getVector();
   uniString.insert( uniString.end(), appendVector.begin(), appendVector.end() );
   return;
+}
+
+UnicodeString UnicodeString::substring( int startIndex, int endIndex )
+{
+    //TODO: Add check to make sure that endIndex > startIndex (+ExceptionClass)
+    std::vector<std::string> returnVector( uniString.begin()+startIndex, uniString.begin()+endIndex() );
+    return returnVector
+}
+
+int UnicodeString::length()
+{
+  return uniString.size();
+}
+
+std::string getChar( int index )
+{
+  return uniString.at( index );
 }
