@@ -3,6 +3,8 @@ package parser
 import (
   "fmt"
   "strings"
+  "variable"
+  "os"
 )
 
 func ParseLine( line string ) {
@@ -29,7 +31,14 @@ func ParseLine( line string ) {
     fmt.Println("function")
   } else if strings.HasPrefix(line,"结束函数") {
     fmt.Println("end function")
+  } else if strings.HasPrefix(line,"离去") {
+    os.Exit(1)
   } else if strings.Contains(line,"=") {
-    AlgebraicParser(line)
+    AlgebraicParser(strings.SplitN(line,"=",-1)[1])
+  } else {
+    tmp := variable.Variable{}
+    tmp = AlgebraicParser(line)
+    fmt.Println(tmp.IntVal)
+
   }
 }
