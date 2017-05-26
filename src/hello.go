@@ -38,9 +38,12 @@ func main() {
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)
     }
+    parser.ParseScript(lines)
+/*
     for _, line := range lines {
       fmt.Println(line)
     }
+    */
   }
 
 

@@ -3,6 +3,7 @@ package variable
 type Variable struct {
   Type_code uint8
   IntVal int64
+  BoolVal bool
 }
 
 func (v *Variable) SetType(type_code uint8) {
@@ -52,5 +53,47 @@ func (v *Variable) Exp(exponent Variable) Variable {
   returnVar := Variable{}
   returnVar.SetType(1)
   returnVar.SetValue(v.IntVal^exponent.IntVal)
+  return returnVar
+}
+
+func (v *Variable) Eq(operand Variable) Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = v.IntVal == operand.IntVal
+  return returnVar
+}
+
+func (v *Variable) Lt(operand Variable) Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = v.IntVal < operand.IntVal
+  return returnVar
+}
+
+func (v *Variable) Gt(operand Variable) Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = v.IntVal > operand.IntVal
+  return returnVar
+}
+
+func (v *Variable) And(operand Variable) Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = v.BoolVal && operand.BoolVal
+  return returnVar
+}
+
+func (v *Variable) Or(operand Variable) Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = v.BoolVal || operand.BoolVal
+  return returnVar
+}
+
+func (v *Variable) Not() Variable {
+  returnVar := Variable{}
+  returnVar.SetType(2)
+  returnVar.BoolVal = !v.BoolVal
   return returnVar
 }
