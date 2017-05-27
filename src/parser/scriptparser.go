@@ -85,7 +85,7 @@ func ParseScript( script []string ) {
       if strings.Contains(expressionArray[0],"?/\\][{}()*&^%$#@!~`]") {
         fmt.Println("ERROR invalid character")
       }
-      variableMap[expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1])
+      variableMap[expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
     } else {
 /*
       tmp := variable.Variable{}

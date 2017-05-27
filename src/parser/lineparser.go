@@ -8,6 +8,7 @@ import (
 )
 
 func ParseLine( line string ) {
+  variableMap := map[string]variable.Variable{}
   line = strings.Trim(line," \t\r\n")
   if strings.HasPrefix(line,"注意") {
     fmt.Println("comment activated")
@@ -34,10 +35,10 @@ func ParseLine( line string ) {
   } else if strings.HasPrefix(line,"离去") {
     os.Exit(1)
   } else if strings.Contains(line,"=") {
-    AlgebraicParser(strings.SplitN(line,"=",-1)[1])
+    AlgebraicParser(strings.SplitN(line,"=",-1)[1],variableMap)
   } else {
     tmp := variable.Variable{}
-    tmp = AlgebraicParser(line)
+    tmp = AlgebraicParser(line,variableMap)
     fmt.Println(tmp.IntVal)
 
   }

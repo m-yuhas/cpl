@@ -33,7 +33,7 @@ func main() {
     var lines []string
     scanner := bufio.NewScanner(f)
     for scanner.Scan() {
-      lines = append(lines, scanner.Text())
+      lines = append(lines, strings.TrimSpace(scanner.Text()))
     }
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)

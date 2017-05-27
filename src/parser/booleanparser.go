@@ -1,7 +1,7 @@
 package parser
 
 import (
-  //"fmt"
+  "fmt"
   "strings"
   "variable"
   //"os"
@@ -84,7 +84,7 @@ func BooleanParser(expression string, variableMap map[string]variable.Variable )
       return part1.Gt(part2)
     }
   } else {
-    return EvaluateAtom(expression)
+    return AlgebraicParser(expression,variableMap)
   }
   return variable.Variable{}
 }
