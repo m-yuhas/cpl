@@ -1,13 +1,13 @@
 package parser
 
 import (
-  "fmt"
+  //"fmt"
   "strings"
   "variable"
   //"os"
 )
 
-func BooleanParser(expression string, variableMap map[string]variable.Variable ) variable.Variable {
+func BooleanParser(expression string, variableMap []map[string]variable.Variable ) variable.Variable {
   parenthCount := 0
   opIndex := -1
   notIndex := -1

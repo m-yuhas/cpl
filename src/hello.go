@@ -38,7 +38,9 @@ func main() {
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)
     }
-    parser.ParseScript(lines)
+    variableMap := []map[string]variable.Variable{}
+    variableMap = append(variableMap, map[string]variable.Variable{})
+    parser.ParseScript(lines,variableMap)
 /*
     for _, line := range lines {
       fmt.Println(line)

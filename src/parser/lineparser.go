@@ -8,7 +8,7 @@ import (
 )
 
 func ParseLine( line string ) {
-  variableMap := map[string]variable.Variable{}
+  variableMap := []map[string]variable.Variable{}
   line = strings.Trim(line," \t\r\n")
   if strings.HasPrefix(line,"注意") {
     fmt.Println("comment activated")

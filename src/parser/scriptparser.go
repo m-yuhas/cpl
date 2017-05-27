@@ -8,10 +8,11 @@ import (
   //"strconv"
 )
 
-func ParseScript( script []string ) {
+func ParseScript( script []string, variableMap []map[string]variable.Variable ) []map[string]variable.Variable {
   iflevel := 0
-  variableMap := map[string]variable.Variable{}
   index := 0
+  localMap := map[string]variable.Variable{}
+  variableMap = append(variableMap,localMap)
   for index < len(script) {
     if strings.HasPrefix(script[index],"注意") || strings.HasPrefix(script[index],"#") {
     } else if strings.HasPrefix(script[index],"输出") {
@@ -61,7 +62,38 @@ func ParseScript( script []string ) {
         os.Exit(1)
       }
     } else if strings.HasPrefix(script[index],"从") {
-      fmt.Println("for loop")
+      expression := strings.TrimPrefix(script[index],"从")
+      expressionArray := strings.Split(expression,"直到")
+      initCondArray := strings.Split(expressionArray[0],"=")
+      initCondArray[0] = strings.TrimSpace(initCondArray[0])
+      initCondArray[1] = strings.TrimSpace(initCondArray[1])
+      var pos2 int
+      for pos, vmap := range variableMap {
+        if _, exists := vmap[initCondArray[0]]; exists {
+          vmap[initCondArray[0]] = AlgebraicParser(initCondArray[1],variableMap)
+          pos2=pos
+          break
+        }
+      }
+      var loopContents []string
+      index++
+      for index < len(script) {
+        if strings.HasPrefix(script[index],"结束圈") {
+          break
+        }
+        loopContents = append(loopContents,script[index])
+        index++
+      }
+      var1 := variableMap[pos2][initCondArray[0]]
+      for !var1.Eq(AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)).BoolVal {
+        //fmt.Println(variableMap)
+        //fmt.Println(variableMap[pos2][initCondArray[0]].IntVal)
+        //fmt.Println("HERE")
+        variableMap = ParseScript(loopContents,variableMap)
+        //fmt.Println()
+        var1 = variableMap[pos2][initCondArray[0]]
+      }
+      index++
     } else if strings.HasPrefix(script[index],"当") {
       fmt.Println("while loop")
     } else if strings.HasPrefix(script[index],"结束圈") {
@@ -85,7 +117,18 @@ func ParseScript( script []string ) {
       if strings.Contains(expressionArray[0],"?/\\][{}()*&^%$#@!~`]") {
         fmt.Println("ERROR invalid character")
       }
-      variableMap[expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+      modified := false
+      for _, vmap := range variableMap {
+        if _, exists := vmap[expressionArray[0]]; exists {
+          vmap[expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+          modified = true
+          break
+        }
+      }
+      if !modified {
+        variableMap[len(variableMap)-1][expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+        //fmt.Println("Setting "+expressionArray[0]+"to"+string(AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap).IntVal))
+      }
     } else {
 /*
       tmp := variable.Variable{}
@@ -94,13 +137,19 @@ func ParseScript( script []string ) {
     }
     index++
   }
-  os.Exit(1)
+  return variableMap[:len(variableMap)-1]
 }
 
-func Output( text string, variableMap map[string]variable.Variable ) {
+func Output( text string, variableMap []map[string]variable.Variable ) {
   text = strings.TrimPrefix(text,"输出")
   text = strings.TrimSpace(text)
-  outVal := variableMap[text]
+  var outVal int64
+  for _, vmap := range variableMap {
+    if val, exists := vmap[text]; exists {
+      outVal = val.IntVal
+      break;
+    }
+  }
   /*
   text = strings.TrimSuffix(text,"\"")
   text = strings.TrimPrefix(text,"\"")
@@ -121,5 +170,5 @@ func Output( text string, variableMap map[string]variable.Variable ) {
     }
     outString = append(outString,string(text[index]))
   }*/
-  fmt.Println(outVal.IntVal)
+  fmt.Println(outVal)
 }

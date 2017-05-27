@@ -7,7 +7,7 @@ import (
   //"fmt"
 )
 
-func AlgebraicParser(expression string, variableMap map[string]variable.Variable ) variable.Variable  {
+func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) variable.Variable  {
   parenthCount := 0
   addSubIndex := -1
   mulDivIndex := -1
@@ -95,11 +95,13 @@ func AlgebraicParser(expression string, variableMap map[string]variable.Variable
   return variable.Variable{}
 }
 
-func EvaluateAtom(expression string, variableMap map[string]variable.Variable) variable.Variable  {
+func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) variable.Variable  {
   value, err := strconv.ParseInt(expression,10,64)
   if err != nil {
-    if val, exists := variableMap[expression]; exists {
-      return val
+    for _, vmap := range variableMap {
+      if val, exists := vmap[expression]; exists {
+        return val
+      }
     }
   }
   returnVar := variable.Variable{}
