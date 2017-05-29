@@ -40,6 +40,30 @@ func main() {
     }
     variableMap := []map[string]variable.Variable{}
     variableMap = append(variableMap, map[string]variable.Variable{})
+
+    for i := 0; i < len(lines); i++ {
+      if line.HasPrefix("函数") {
+        line = strings.TrimPrefix(lines[i],"函数")
+        line = strings.TrimSpace(lines[i])
+        nameAndArgs = strings.Split(line,"要")
+        name = strings.TrimSpace(nameAndArgs[0])
+        arglist = strings.Split(strings.TrimSpace(line),',')
+        variableMap[0][name] = variable.Variable{}
+        variableMap[0][name].SetType(10)
+        variableMap[0][name].FuncVal = []string{}
+        i++
+        for i < len(lines) {
+          if strings.TrimeSpace(lines[i]) == "结束函数" {
+            break
+          }
+          variableMap[0][name].FuncVal = append(variableMap[0][name].FuncVal,lines[i])
+          i++
+        }
+        for _, arg = range arglist {
+          variableMap[0][name].FuncArgs = append(variableMap[0][name].FuncArgs,arg)
+        }
+      }
+    }
     parser.ParseScript(lines,variableMap)
 /*
     for _, line := range lines {

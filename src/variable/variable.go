@@ -4,6 +4,8 @@ type Variable struct {
   Type_code uint8
   IntVal int64
   BoolVal bool
+  FuncVal []string
+  FuncArgs []string
 }
 
 func (v *Variable) SetType(type_code uint8) {

@@ -14,8 +14,8 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
   localMap := map[string]variable.Variable{}
   variableMap = append(variableMap,localMap)
   for index < len(script) {
-    if strings.HasPrefix(script[index],"注意") || strings.HasPrefix(script[index],"#") {
-    } else if strings.HasPrefix(script[index],"输出") {
+    if strings.HasPrefix(script[index],"注意:") || strings.HasPrefix(script[index],"#") {
+    } else if strings.HasPrefix(script[index],"输出:") {
       Output(script[index],variableMap)
     } else if strings.HasPrefix(script[index],"如果") {
       text := strings.TrimPrefix(script[index],"如果")
@@ -62,6 +62,7 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
         os.Exit(1)
       }
     } else if strings.HasPrefix(script[index],"从") {
+      //TODO: Check for nested loops
       expression := strings.TrimPrefix(script[index],"从")
       expressionArray := strings.Split(expression,"直到")
       initCondArray := strings.Split(expressionArray[0],"=")
@@ -93,9 +94,25 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
         //fmt.Println()
         var1 = variableMap[pos2][initCondArray[0]]
       }
-      index++
+      //index++
     } else if strings.HasPrefix(script[index],"当") {
-      fmt.Println("while loop")
+      expression := strings.TrimPrefix(script[index],"当")
+      expression = strings.TrimSpace(expression)
+      var loopContents []string
+      index++
+      for index < len(script) {
+        if strings.HasPrefix(script[index],"结束圈") {
+          break
+        }
+        loopContents = append(loopContents,script[index])
+        index++
+      }
+      var1 := BooleanParser(expression,variableMap)
+      for var1.BoolVal {
+        variableMap = ParseScript(loopContents,variableMap)
+        var1 = BooleanParser(expression,variableMap)
+      }
+      //fmt.Println("while loop")
     } else if strings.HasPrefix(script[index],"结束圈") {
       fmt.Println("end loop")
     } else if strings.HasPrefix(script[index],"跳出") {
@@ -141,15 +158,16 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
 }
 
 func Output( text string, variableMap []map[string]variable.Variable ) {
-  text = strings.TrimPrefix(text,"输出")
+  text = strings.TrimPrefix(text,"输出:")
   text = strings.TrimSpace(text)
-  var outVal int64
+  /*var outVal int64
   for _, vmap := range variableMap {
     if val, exists := vmap[text]; exists {
       outVal = val.IntVal
       break;
     }
-  }
+  }*/
+  fmt.Println(StringParser(text,variableMap))
   /*
   text = strings.TrimSuffix(text,"\"")
   text = strings.TrimPrefix(text,"\"")
@@ -170,5 +188,5 @@ func Output( text string, variableMap []map[string]variable.Variable ) {
     }
     outString = append(outString,string(text[index]))
   }*/
-  fmt.Println(outVal)
+  //fmt.Println(outVal)
 }
