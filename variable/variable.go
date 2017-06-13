@@ -1,9 +1,11 @@
 package variable
 
 type Variable struct {
-  Type_code uint8
+  TypeCode uint8
   IntVal int64
   BoolVal bool
+  FloatVal float64
+  StringVal string
   FuncVal []string
   FuncArgs []string
 }

@@ -5,8 +5,8 @@ import (
     "bufio"
     "os"
     "strings"
-    "variable"
-    "parser"
+    "cpl/src/variable"
+    "cpl\src\parser\parser"
     //"ioutil"
 )
 
