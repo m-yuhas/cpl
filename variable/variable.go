@@ -103,6 +103,43 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       returnVar.StringVal = strings.Join(s_arr,"")
       return returnVar
     }
+  case 4:
+    switch addend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 4
+      s_arr []string
+      s_arr[0] = v.StringVal
+      if addend.BoolVal {
+        s_arr[1] = "真"
+      } else {
+        s_arr[1] = "假"
+      }
+      returnVar.StringVal = strings.Join(s_arr,"")
+      return returnVar
+    case 2:
+      returnVar.TypeCode = 4
+      s_arr []string
+      s_arr[0] = v.StringVal
+      s_arr[1] = strconv.Itoa(addend.IntVal)
+      returnVar.StringVal = strings.Join(s_arr,"")
+      return returnVar
+    case 3:
+      returnVar.TypeCode = 4
+      s_arr []string
+      s_arr[0] = v.StringVal
+      s_arr[1] = strconv.FormatFloat(v.FloatVal,'f',-1,64)
+      returnVar.StringVal = strings.Join(s_arr,"")
+      return returnVar
+    case 4:
+      returnVar.TypeCode = 4
+      s_arr []string
+      s_arr[0] = v.StringVal
+      s_arr[1] = addend.StringVal
+      returnVar.StringVal = strings.Join(s_arr,"")
+      return returnVar
+    }
   }
   return returnVar, errors.New("错误：未知的错误")
 }
