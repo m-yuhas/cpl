@@ -96,16 +96,28 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
 }
 
 func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) variable.Variable  {
+  returnVar := variable.Variable{}
   value, err := strconv.ParseInt(expression,10,64)
   if err != nil {
-    for _, vmap := range variableMap {
-      if val, exists := vmap[expression]; exists {
-        return val
+    value, err := strconv.ParseInt(expression,64)
+    if err != nil {
+      if ( strings.HasPrefix(expression,"\"") || strings.HasPrefix(expression,"“") || strings.HasPrefix(expression,"”") ) && ( strings.HasSuffix(expression,"\"") || strings.HasSuffix(expression,"“") || strings.HasSuffix(expression,"”") ) {
+        returnVar.TypeCode = 4
+        returnVar.StringVal = expression[1:len(expression)-1]
+        return returnVar
+      } else {
+        for _, vmap := range variableMap {
+          if val, exists := vmap[expression]; exists {
+            return val
+          }
+        }
       }
     }
+    returnVar.TypeCode = 3
+    returnVar.IntVal = value
+    return returnVar
   }
-  returnVar := variable.Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(value)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = value
   return returnVar
 }

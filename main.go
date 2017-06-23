@@ -5,16 +5,16 @@ import (
     "bufio"
     "os"
     "strings"
-    "cpl/src/variable"
-    "cpl\src\parser\parser"
+    "cpl/variable"
+    "cpl/parser"
     //"ioutil"
 )
 
-var variableMap = map[string]variable.Variable{}
+//var variableMap = map[string]variable.Variable{}
 
 func main() {
   if len(os.Args) <= 1 {
-    fmt.Println("欢迎中华电脑语言第0.2版本!\n©2017 － 麦克尔 余哈斯")
+    fmt.Println("欢迎中华电脑语言第0.2版本!\n©2017 － 迈克尔 余哈斯")
     //var variableMap = make(map[string]variable.Variable)
     for {
       inputBuffer := bufio.NewReader(os.Stdin)
@@ -26,7 +26,7 @@ func main() {
   } else {
     f, err := os.Open(os.Args[1])
     if err != nil {
-      fmt.Println("Error opening file")
+      fmt.Println("错误：不能开文件")
       panic(err)
     }
     defer f.Close()
@@ -42,6 +42,7 @@ func main() {
     variableMap = append(variableMap, map[string]variable.Variable{})
 
     for i := 0; i < len(lines); i++ {
+      lines[i] = strings.TrimSpace(lines[i]])
       if line.HasPrefix("函数") {
         line = strings.TrimPrefix(lines[i],"函数")
         line = strings.TrimSpace(lines[i])
