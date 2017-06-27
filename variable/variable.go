@@ -1,5 +1,11 @@
 package variable
 
+import (
+  "errors"
+  "strings"
+  "strconv"
+)
+
 type Variable struct {
   TypeCode uint8
   BoolVal bool
@@ -22,7 +28,7 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
     case 1:
       returnVar.TypeCode = 1
       returnVar.BoolVal = v.BoolVal || addend.BoolVal
-        return returnVar
+        return returnVar, nil
     case 2:
       returnVar.TypeCode = 2
       if v.BoolVal {
@@ -30,7 +36,7 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       } else {
         returnVar.IntVal = addend.IntVal
       }
-      return returnVar
+      return returnVar, nil
     case 3:
       returnVar.TypeCode = 3
       if v.BoolVal {
@@ -38,10 +44,10 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       } else {
         returnVar.FloatVal = addend.FloatVal
       }
-      return returnVar
+      return returnVar, nil
     case 4:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       if v.BoolVal {
         s_arr[0] = "真"
       } else {
@@ -49,7 +55,7 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       }
       s_arr[1] = addend.StringVal
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     }
   case 2:
     switch addend.TypeCode {
@@ -62,22 +68,22 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       } else {
         returnVar.IntVal = v.IntVal
       }
-      return returnVar
+      return returnVar, nil
     case 2:
       returnVar.TypeCode = 2
       returnVar.IntVal = v.IntVal + addend.IntVal
-      return returnVar
+      return returnVar, nil
     case 3:
       returnVar.TypeCode = 3
       returnVar.FloatVal = float64(v.IntVal) + addend.FloatVal
-      return returnVar
+      return returnVar, nil
     case 4:
       returnVar.TypeCode = 4
-      s_arr []string
-      s_arr[0] = strconv.Itoa(v.IntVal)
+      var s_arr []string
+      s_arr[0] = strconv.FormatInt(v.IntVal, 10)
       s_arr[1] = addend.StringVal
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     }
   case 3:
     switch addend.TypeCode {
@@ -90,18 +96,18 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       } else {
         returnVar.FloatVal = v.FloatVal
       }
-      return returnVar
+      return returnVar, nil
     case 2:
-      returnVar.typeCode = 3
+      returnVar.TypeCode = 3
       returnVar.FloatVal = v.FloatVal + float64(addend.FloatVal)
-      return returnVar
+      return returnVar, nil
     case 4:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       s_arr[0] = strconv.FormatFloat(v.FloatVal,'f',-1,64)
       s_arr[1] = addend.StringVal
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     }
   case 4:
     switch addend.TypeCode {
@@ -109,7 +115,7 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       return returnVar, errors.New("错误：变量不无初始化")
     case 1:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       s_arr[0] = v.StringVal
       if addend.BoolVal {
         s_arr[1] = "真"
@@ -117,28 +123,28 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
         s_arr[1] = "假"
       }
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     case 2:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       s_arr[0] = v.StringVal
-      s_arr[1] = strconv.Itoa(addend.IntVal)
+      s_arr[1] = strconv.FormatInt(addend.IntVal, 10)
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     case 3:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       s_arr[0] = v.StringVal
       s_arr[1] = strconv.FormatFloat(v.FloatVal,'f',-1,64)
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     case 4:
       returnVar.TypeCode = 4
-      s_arr []string
+      var s_arr []string
       s_arr[0] = v.StringVal
       s_arr[1] = addend.StringVal
       returnVar.StringVal = strings.Join(s_arr,"")
-      return returnVar
+      return returnVar, nil
     }
   }
   return returnVar, errors.New("错误：未知的错误")
@@ -146,77 +152,77 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
 
 func (v *Variable) Sub(subtrahend Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(v.IntVal-subtrahend.IntVal)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal-subtrahend.IntVal
   return returnVar
 }
 
 func (v *Variable) Mul(factor Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(v.IntVal*factor.IntVal)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal*factor.IntVal
   return returnVar
 }
 
 func (v *Variable) Div(dividend Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(v.IntVal/dividend.IntVal)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal/dividend.IntVal
   return returnVar
 }
 
 func (v *Variable) Mod(dividend Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(v.IntVal%dividend.IntVal)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal%dividend.IntVal
   return returnVar
 }
 
 func (v *Variable) Exp(exponent Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(1)
-  returnVar.SetValue(v.IntVal^exponent.IntVal)
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal^exponent.IntVal
   return returnVar
 }
 
 func (v *Variable) Eq(operand Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal == operand.IntVal
   return returnVar
 }
 
 func (v *Variable) Lt(operand Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal < operand.IntVal
   return returnVar
 }
 
 func (v *Variable) Gt(operand Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal > operand.IntVal
   return returnVar
 }
 
 func (v *Variable) And(operand Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal && operand.BoolVal
   return returnVar
 }
 
 func (v *Variable) Or(operand Variable) Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal || operand.BoolVal
   return returnVar
 }
 
 func (v *Variable) Not() Variable {
   returnVar := Variable{}
-  returnVar.SetType(2)
+  returnVar.TypeCode = 1
   returnVar.BoolVal = !v.BoolVal
   return returnVar
 }

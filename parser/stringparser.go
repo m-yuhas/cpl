@@ -1,7 +1,7 @@
 package parser
 
 import (
-  "variable"
+  "cpl/variable"
   "strconv"
   //"strings"
   //"fmt"
