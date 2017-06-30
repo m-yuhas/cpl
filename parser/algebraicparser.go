@@ -7,7 +7,7 @@ import (
   //"fmt"
 )
 
-func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) variable.Variable  {
+func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) (variable.Variable, error)  {
   parenthCount := 0
   addSubIndex := -1
   mulDivIndex := -1
@@ -63,30 +63,72 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
     firsthalf := strings.TrimSpace(expression[:currIndex])
     lasthalf := strings.TrimSpace(expression[currIndex+1:])
     if optype == 1 {
-      part1 := AlgebraicParser(firsthalf, variableMap)
-      return part1.Add(AlgebraicParser(lasthalf,variableMap))
+      part1, err := AlgebraicParser(firsthalf, variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(lasthalf, variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Add(part2)
     } else if optype == 2 {
-      part1 := AlgebraicParser(firsthalf,variableMap)
-      return part1.Sub(AlgebraicParser(lasthalf,variableMap))
+      part1, err := AlgebraicParser(firsthalf,variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(lasthalf,variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Sub(part2)
     }
   } else if mulDivIndex != -1 {
     firsthalf := strings.TrimSpace(expression[:currIndex])
     lasthalf := strings.TrimSpace(expression[currIndex+1:])
     if optype == 3 {
-      part1 := AlgebraicParser(firsthalf,variableMap)
-      return part1.Mul(AlgebraicParser(lasthalf,variableMap))
+      part1, err := AlgebraicParser(firsthalf,variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(lasthalf,variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Mul(part2)
     } else if optype == 4 {
-      part1 := AlgebraicParser(firsthalf,variableMap)
-      return part1.Div(AlgebraicParser(lasthalf,variableMap))
+      part1, err := AlgebraicParser(firsthalf,variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(lasthalf,variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Div(part2)
     } else if optype == 5 {
-      part1 := AlgebraicParser(firsthalf,variableMap)
-      return part1.Mod(AlgebraicParser(lasthalf,variableMap))
+      part1, err := AlgebraicParser(firsthalf,variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(lasthalf,variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Mod(part2)
     }
   } else if expIndex != -1 {
     firsthalf := strings.TrimSpace(expression[:currIndex])
     lasthalf := strings.TrimSpace(expression[currIndex+1:])
-    part1 := AlgebraicParser(firsthalf,variableMap)
-    return part1.Exp(AlgebraicParser(lasthalf,variableMap))
+    part1, err := AlgebraicParser(firsthalf,variableMap)
+    if err != nil {
+      return part1, err
+    }
+    part2, err := AlgebraicParser(lasthalf,variableMap)
+    if err != nil {
+      return part2, err
+    }
+    return part1.Exp(part2)
   } else if expression[0] == '(' && expression[len(expression)-1] == ')' {
     return AlgebraicParser(strings.TrimSpace(expression[1:len(expression)-1]),variableMap)
   } else {
@@ -99,7 +141,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
   returnVar := variable.Variable{}
   value, err := strconv.ParseInt(expression,10,64)
   if err != nil {
-    value, err := strconv.ParseInt(expression,64)
+    value, err := strconv.ParseInt(expression,10,64)
     if err != nil {
       if ( strings.HasPrefix(expression,"\"") || strings.HasPrefix(expression,"“") || strings.HasPrefix(expression,"”") ) && ( strings.HasSuffix(expression,"\"") || strings.HasSuffix(expression,"“") || strings.HasSuffix(expression,"”") ) {
         returnVar.TypeCode = 4

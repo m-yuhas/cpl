@@ -150,46 +150,46 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
   return returnVar, errors.New("错误：未知的错误")
 }
 
-func (v *Variable) Sub(subtrahend Variable) Variable {
+func (v *Variable) Sub(subtrahend Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 2
   returnVar.IntVal = v.IntVal-subtrahend.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Mul(factor Variable) Variable {
+func (v *Variable) Mul(factor Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 2
   returnVar.IntVal = v.IntVal*factor.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Div(dividend Variable) Variable {
+func (v *Variable) Div(dividend Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 2
   returnVar.IntVal = v.IntVal/dividend.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Mod(dividend Variable) Variable {
+func (v *Variable) Mod(dividend Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 2
   returnVar.IntVal = v.IntVal%dividend.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Exp(exponent Variable) Variable {
+func (v *Variable) Exp(exponent Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 2
   returnVar.IntVal = v.IntVal^exponent.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Eq(operand Variable) Variable {
+func (v *Variable) Eq(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal == operand.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
 func (v *Variable) Lt(operand Variable) Variable {
