@@ -134,10 +134,10 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   } else {
     return EvaluateAtom(expression,variableMap)
   }
-  return variable.Variable{}
+  return variable.Variable{}, nil
 }
 
-func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) variable.Variable  {
+func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) (variable.Variable, error)  {
   returnVar := variable.Variable{}
   value, err := strconv.ParseInt(expression,10,64)
   if err != nil {
@@ -146,20 +146,20 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
       if ( strings.HasPrefix(expression,"\"") || strings.HasPrefix(expression,"“") || strings.HasPrefix(expression,"”") ) && ( strings.HasSuffix(expression,"\"") || strings.HasSuffix(expression,"“") || strings.HasSuffix(expression,"”") ) {
         returnVar.TypeCode = 4
         returnVar.StringVal = expression[1:len(expression)-1]
-        return returnVar
+        return returnVar, nil
       } else {
         for _, vmap := range variableMap {
           if val, exists := vmap[expression]; exists {
-            return val
+            return val, nil
           }
         }
       }
     }
     returnVar.TypeCode = 3
     returnVar.IntVal = value
-    return returnVar
+    return returnVar, nil
   }
   returnVar.TypeCode = 2
   returnVar.IntVal = value
-  return returnVar
+  return returnVar, nil
 }
