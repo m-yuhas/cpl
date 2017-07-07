@@ -4,7 +4,7 @@ import (
   "cpl/variable"
   "strconv"
   //"strings"
-  //"fmt"
+  "fmt"
 )
 
 func StringParser(expression string, variableMap []map[string]variable.Variable ) string {
@@ -38,7 +38,11 @@ func StringParser(expression string, variableMap []map[string]variable.Variable 
       //outputSlice = append(outputSlice,string(AlgebraicParser(string(sliceToParse),variableMap).IntVal))
       //fmt.Println(string(sliceToParse))
       //outputSlice = outputSlice + AlgebraicParser(string(sliceToParse),variableMap).IntVal
-      outputSlice = string(strconv.AppendInt([]byte(outputSlice),AlgebraicParser(string(sliceToParse),variableMap).IntVal,10))
+      temp, err := AlgebraicParser(string(sliceToParse),variableMap)
+      if err != nil {
+        fmt.Println(err)
+      }
+      outputSlice = string(strconv.AppendInt([]byte(outputSlice),temp.IntVal,10))
       continue
     }
     //outputSlice = append(outputSlice,string(expression[i]))

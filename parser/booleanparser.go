@@ -7,7 +7,7 @@ import (
   //"os"
 )
 
-func BooleanParser(expression string, variableMap []map[string]variable.Variable ) variable.Variable {
+func BooleanParser(expression string, variableMap []map[string]variable.Variable ) (variable.Variable, error) {
   parenthCount := 0
   opIndex := -1
   notIndex := -1
@@ -61,21 +61,36 @@ func BooleanParser(expression string, variableMap []map[string]variable.Variable
   if opIndex != -1 {
     firsthalf := strings.TrimSpace(expression[:currIndex])
     lasthalf := strings.TrimSpace(expression[currIndex+1:])
-    part1 := BooleanParser(firsthalf,variableMap)
-    part2 := BooleanParser(lasthalf,variableMap)
+    part1, err := BooleanParser(firsthalf,variableMap)
+    if err != nil {
+      return part1, err
+    }
+    part2, err := BooleanParser(lasthalf,variableMap)
+    if err != nil {
+      return part2, err
+    }
     if optype == 1 {
       return part1.And(part2)
     } else if optype == 2 {
       return part1.Or(part2)
     }
   } else if notIndex != -1 {
-    part := BooleanParser(strings.TrimSpace(expression[currIndex+1:]),variableMap)
+    part, err := BooleanParser(strings.TrimSpace(expression[currIndex+1:]),variableMap)
+    if err != nil {
+      return part, err
+    }
     return part.Not()
   } else if eqIndex != -1 {
     firsthalf := strings.TrimSpace(expression[:currIndex])
     lasthalf := strings.TrimSpace(expression[currIndex+1:])
-    part1 := BooleanParser(firsthalf,variableMap)
-    part2 := BooleanParser(lasthalf,variableMap)
+    part1, err := BooleanParser(firsthalf,variableMap)
+    if err != nil {
+      return part1, err
+    }
+    part2, err := BooleanParser(lasthalf,variableMap)
+    if err != nil {
+      return part2, err
+    }
     if optype == 4 {
       return part1.Eq(part2)
     } else if optype == 5 {
@@ -86,5 +101,5 @@ func BooleanParser(expression string, variableMap []map[string]variable.Variable
   } else {
     return AlgebraicParser(expression,variableMap)
   }
-  return variable.Variable{}
+  return variable.Variable{}, nil
 }

@@ -1,5 +1,23 @@
+/*
+main.go - Entry Point for Code Execution
+(C) 2017 Michael Yuhas
+*/
+
+/*
+Decare this as part of package 'main' so it has somewhere to go
+*/
 package main
 
+/*
+Use the following packages:
+fmt - printing to console
+bufio - io functions for reading script file
+os - os utilities for files
+strings - string processing utilities
+cpl/variable - variable class
+cpl/parser - parser class
+cpl/messages - error, warning, and info messages
+*/
 import (
     "fmt"
     "bufio"
@@ -7,14 +25,18 @@ import (
     "strings"
     "cpl/variable"
     "cpl/parser"
-    //"ioutil"
+    "cpl/messages"
 )
 
-//var variableMap = map[string]variable.Variable{}
-
+/*
+main() - main entry point
+Arguments: None
+Returns: None
+*/
 func main() {
+  //Check if user wants to start program in terminal mode or execute a script
   if len(os.Args) <= 1 {
-    fmt.Println("欢迎中华电脑语言第0.2版本!\n©2017 － 迈克尔 余哈斯")
+    fmt.Println(messages.CLIHeaderText)
     //var variableMap = make(map[string]variable.Variable)
     for {
       inputBuffer := bufio.NewReader(os.Stdin)
@@ -42,27 +64,31 @@ func main() {
     variableMap = append(variableMap, map[string]variable.Variable{})
 
     for i := 0; i < len(lines); i++ {
-      lines[i] = strings.TrimSpace(lines[i]])
-      if line.HasPrefix("函数") {
-        line = strings.TrimPrefix(lines[i],"函数")
-        line = strings.TrimSpace(lines[i])
-        nameAndArgs = strings.Split(line,"要")
-        name = strings.TrimSpace(nameAndArgs[0])
-        arglist = strings.Split(strings.TrimSpace(line),',')
-        variableMap[0][name] = variable.Variable{}
-        variableMap[0][name].SetType(10)
-        variableMap[0][name].FuncVal = []string{}
+      lines[i] = strings.TrimSpace(lines[i])
+      if strings.HasPrefix(lines[i],"函数") {
+        line := strings.TrimPrefix(lines[i],"函数")
+        line = strings.TrimSpace(line)
+        nameAndArgs := strings.Split(line,"要")
+        name := strings.TrimSpace(nameAndArgs[0])
+        arglist := strings.Split(strings.TrimSpace(line),string(','))
+        tempVar := variable.Variable{}
+        tempVar.TypeCode = 10
         i++
+        tempFuncVal := []string{}
         for i < len(lines) {
-          if strings.TrimeSpace(lines[i]) == "结束函数" {
+          if strings.TrimSpace(lines[i]) == "结束函数" {
             break
           }
-          variableMap[0][name].FuncVal = append(variableMap[0][name].FuncVal,lines[i])
+          tempFuncVal = append(tempFuncVal,lines[i])
           i++
         }
-        for _, arg = range arglist {
-          variableMap[0][name].FuncArgs = append(variableMap[0][name].FuncArgs,arg)
+        tempVar.FuncVal = tempFuncVal
+        tempArgList := []string{}
+        for _, arg := range arglist {
+          tempArgList = append(tempArgList,arg)
         }
+        tempVar.FuncArgs = tempArgList
+        variableMap[0][name] = tempVar
       }
     }
     parser.ParseScript(lines,variableMap)

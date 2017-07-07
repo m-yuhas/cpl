@@ -38,7 +38,10 @@ func ParseLine( line string ) {
     AlgebraicParser(strings.SplitN(line,"=",-1)[1],variableMap)
   } else {
     tmp := variable.Variable{}
-    tmp = AlgebraicParser(line,variableMap)
+    tmp, err := AlgebraicParser(line,variableMap)
+    if err != nil {
+      fmt.Println(err)
+    }
     fmt.Println(tmp.IntVal)
 
   }

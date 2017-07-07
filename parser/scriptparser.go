@@ -19,7 +19,10 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
       Output(script[index],variableMap)
     } else if strings.HasPrefix(script[index],"如果") {
       text := strings.TrimPrefix(script[index],"如果")
-      trueFalse := BooleanParser(text,variableMap)
+      trueFalse, err := BooleanParser(text,variableMap)
+      if err != nil {
+        fmt.Println(err)
+      }
       iflevel++
       starting_iflevel := iflevel
       if !trueFalse.BoolVal {
@@ -71,7 +74,11 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
       var pos2 int
       for pos, vmap := range variableMap {
         if _, exists := vmap[initCondArray[0]]; exists {
-          vmap[initCondArray[0]] = AlgebraicParser(initCondArray[1],variableMap)
+          var err error
+          vmap[initCondArray[0]], err = AlgebraicParser(initCondArray[1],variableMap)
+          if err != nil {
+            fmt.Println(err)
+          }
           pos2=pos
           break
         }
@@ -86,13 +93,30 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
         index++
       }
       var1 := variableMap[pos2][initCondArray[0]]
-      for !var1.Eq(AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)).BoolVal {
+      temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)
+      if err != nil {
+        fmt.Println(err)
+      }
+      eval, err := var1.Eq(temp0)
+      if err != nil {
+        fmt.Println(err)
+      }
+      for !eval.BoolVal {
         //fmt.Println(variableMap)
         //fmt.Println(variableMap[pos2][initCondArray[0]].IntVal)
         //fmt.Println("HERE")
         variableMap = ParseScript(loopContents,variableMap)
         //fmt.Println()
         var1 = variableMap[pos2][initCondArray[0]]
+
+        temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)
+        if err != nil {
+          fmt.Println(err)
+        }
+        eval, err = var1.Eq(temp0)
+        if err != nil {
+          fmt.Println(err)
+        }
       }
       //index++
     } else if strings.HasPrefix(script[index],"当") {
@@ -107,10 +131,13 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
         loopContents = append(loopContents,script[index])
         index++
       }
-      var1 := BooleanParser(expression,variableMap)
+      var1, err := BooleanParser(expression,variableMap)
+      if err != nil {
+        fmt.Println(err)
+      }
       for var1.BoolVal {
         variableMap = ParseScript(loopContents,variableMap)
-        var1 = BooleanParser(expression,variableMap)
+        var1, err = BooleanParser(expression,variableMap)
       }
       //fmt.Println("while loop")
     } else if strings.HasPrefix(script[index],"结束圈") {
@@ -137,13 +164,21 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
       modified := false
       for _, vmap := range variableMap {
         if _, exists := vmap[expressionArray[0]]; exists {
-          vmap[expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+          var err error
+          vmap[expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+          if err != nil {
+            fmt.Println(err)
+          }
           modified = true
           break
         }
       }
       if !modified {
-        variableMap[len(variableMap)-1][expressionArray[0]] = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+        var err error
+        variableMap[len(variableMap)-1][expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+        if err != nil {
+          fmt.Println(err)
+        }
         //fmt.Println("Setting "+expressionArray[0]+"to"+string(AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap).IntVal))
       }
     } else {

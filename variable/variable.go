@@ -192,37 +192,37 @@ func (v *Variable) Eq(operand Variable) (Variable, error) {
   return returnVar, nil
 }
 
-func (v *Variable) Lt(operand Variable) Variable {
+func (v *Variable) Lt(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal < operand.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Gt(operand Variable) Variable {
+func (v *Variable) Gt(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal > operand.IntVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) And(operand Variable) Variable {
+func (v *Variable) And(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal && operand.BoolVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Or(operand Variable) Variable {
+func (v *Variable) Or(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal || operand.BoolVal
-  return returnVar
+  return returnVar, nil
 }
 
-func (v *Variable) Not() Variable {
+func (v *Variable) Not() (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = !v.BoolVal
-  return returnVar
+  return returnVar, nil
 }
