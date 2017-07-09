@@ -34,17 +34,10 @@ Arguments: None
 Returns: None
 */
 func main() {
-  //Check if user wants to start program in terminal mode or execute a script
+  // Check if user wants to start program in terminal mode or execute a script
   if len(os.Args) <= 1 {
     fmt.Println(messages.CLIHeaderText)
-    //var variableMap = make(map[string]variable.Variable)
-    for {
-      inputBuffer := bufio.NewReader(os.Stdin)
-      fmt.Printf(">>>")
-      userInput, _ := inputBuffer.ReadString('\n')
-      userInput = strings.Replace(userInput,"\r\n","",-1)
-      parser.ParseLine(userInput)
-    }
+    cli_main()
   } else {
     f, err := os.Open(os.Args[1])
     if err != nil {
@@ -98,18 +91,25 @@ func main() {
     }
     */
   }
-
-
-
-
-
+}
 
 /*
-  testObj := variable.Variable{}
-  testObj.SetType(1)
-  testObj.SetValue(1000)
-  variableMap["A"] = testObj
-  fmt.Println(variableMap["A"])
-  */
-
+cli_main() - top level function to handle the CLI
+Arguments: None
+Returns: None
+*/
+func cli_main() {
+  // Loop continuously and execute commands provided by user
+  for {
+    inputBuffer := bufio.NewReader(os.Stdin)
+    fmt.Printf(">>>")
+    userInput, err := inputBuffer.ReadString('\n')
+    // Handle error if one occurs
+    if err != nil {
+      fmt.Println(messages.CLIInputError)
+      os.Exit(1)
+    }
+    userInput = strings.Replace(userInput,"\r\n","",-1)
+    parser.ParseLine(userInput)
+  }
 }
