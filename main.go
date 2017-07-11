@@ -165,16 +165,48 @@ func strip_whitespace( str_arr []string ) []string {
   // Loop through array and remove unneeded spaces line by line
   for i := 0; i < len(str_arr); i++ {
     input_line := []rune(str_arr[j])
-    var output_line []rune
-    // Loop through runes in the line and find unneeded space
-    for j := 0; j < len(input_line); i++ {
-    
-      if input_line[j] == ' ' {
-        continue
-      } else {
-        output_line = append(input_line[j])
+    strip_whitespace()
+  }
+}
+
+func strip_whitespace( input_rune_arr []rune ) []rune {
+  var output_rune_arr []rune
+  for i := 0; i < len(input_rune_arr); i++ {
+    if input_line[j] == '#' {
+      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
+      i++
+      if input_line[i] == '(' {
+        output_rune_arr = append(output_rune_arr,input_rune_arr[i])
+        var temp_rune_arr []rune
+        parenth_count = 1
+        for i < len(input_rune_arr) &&  {
+          i++
+          temp_rune_arr == append(temp_rune_arr,input_rune_arr[i])
+          if input_rune_arr[i] == '(' {
+            parenth_count++
+          }
+          if input_rune_arr[i] == ')' {
+            parenth_count--
+          }
+          if parenth_count == 0 {
+            break
+          }
+          temp_rune_arr == append(temp_rune_arr,input_rune_arr[i])
+        }
+        if i >= len(input_rune_arr) {
+          fmt.Println(messages.)
+          os.Exit(0)
+        }
+        output_rune_arr == append(output_rune_arr,strip_whitespace(temp_rune_arr))
+        output_rune_arr == append(output_rune_arr,')')
       }
+    } else if input_rune_arr[i] == '"' || input_rune_arr[i] == '\'' || input_rune_arr[i] == '”' || input_rune_arr[i] == '“' || input_rune_arr[i] == '‘' || input_rune_arr[i] == '’' {
+      in_quotes = !in_quotes
+      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
+    } else if input_rune_arr[i] == ' ' || input_rune_arr[i] == '\t' && in_quotes {
+      continue
+    } else {
+      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
     }
-    output_str_arr = append(output_str_arr,string(output_line))
   }
 }
