@@ -54,46 +54,15 @@ func main() {
       fmt.Println(os.Stderr,err)
     }
 
-
+    lines = strip_whitespace(lines)
     lines = find_comments(lines)
+
 
     variableMap := []map[string]variable.Variable{}
     variableMap = append(variableMap, map[string]variable.Variable{})
 
-    for i := 0; i < len(lines); i++ {
-      lines[i] = strings.TrimSpace(lines[i])
-      if strings.HasPrefix(lines[i],"函数") {
-        line := strings.TrimPrefix(lines[i],"函数")
-        line = strings.TrimSpace(line)
-        nameAndArgs := strings.Split(line,"要")
-        name := strings.TrimSpace(nameAndArgs[0])
-        arglist := strings.Split(strings.TrimSpace(line),string(','))
-        tempVar := variable.Variable{}
-        tempVar.TypeCode = 10
-        i++
-        tempFuncVal := []string{}
-        for i < len(lines) {
-          if strings.TrimSpace(lines[i]) == "结束函数" {
-            break
-          }
-          tempFuncVal = append(tempFuncVal,lines[i])
-          i++
-        }
-        tempVar.FuncVal = tempFuncVal
-        tempArgList := []string{}
-        for _, arg := range arglist {
-          tempArgList = append(tempArgList,arg)
-        }
-        tempVar.FuncArgs = tempArgList
-        variableMap[0][name] = tempVar
-      }
-    }
+
     parser.ParseScript(lines,variableMap)
-/*
-    for _, line := range lines {
-      fmt.Println(line)
-    }
-    */
   }
 }
 
@@ -164,49 +133,70 @@ func strip_whitespace( str_arr []string ) []string {
   var output_str_arr []string
   // Loop through array and remove unneeded spaces line by line
   for i := 0; i < len(str_arr); i++ {
-    input_line := []rune(str_arr[j])
-    strip_whitespace()
+    input_line := []rune(str_arr[i])
+    in_quotes := false
+    var output_line []rune
+    // Loop through characters in line and remove whitespace
+    for j := 0; j < len(input_line); j++ {
+      // Cases for in_quotes and quotation preceded by an escape character
+      if input_line[j] == '#' {
+        output_line = append(output_line,input_line[j])
+        j++
+        // Check that the '#' is not the final character in a line
+        if j >= len(input_line); j++ {
+          fmt.Println(messages.LineEndsWithPoundSign)
+          os.Exit()
+        }
+        output_line = append(output_line,input_line[j])
+      } else if input_line[j] == '"' || input_line[j] == '\'' || input_line[j] == '”' || input_line[j] == '“' || input_line[j] == '‘' || input_line[j] == '’' {
+        in_quotes = !in_quotes
+        output_line = append(output_line,input_line[j])
+      } else if ( input_line[j] == ' ' || input_line[j] == '\t' ) && !in_quotes {
+        continue
+      } else {
+        output_line = append(output_line,input_line[j])
+      }
+    }
+    output_str_arr = append(output_str_arr,string(output_line))
   }
+  return output_str_arr
 }
 
-func strip_whitespace( input_rune_arr []rune ) []rune {
-  var output_rune_arr []rune
-  for i := 0; i < len(input_rune_arr); i++ {
-    if input_line[j] == '#' {
-      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
+/*
+find_functions - find functions, store them to the workspace, and remove from line array
+Arguments:
+  str_arr - Array of strings
+  map[string]variable.Variable - Workspace to which to add functions
+Returns:
+  []string - Modified Array of strings with functions removed
+  map[string]variable.Variable - Workspace with functions added
+  error - Fires if an error occurs while parsing the array
+*/
+func find_functions( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[]variable.Variable, error ) {
+  for i := 0; i < len(str_arr); i++ {
+    if strings.HasPrefix(str_arr[i],"函数") {
+      func_definition := strings.TrimPrefix(str_arr[i],"函数")
+      nameAndArgs := strings.Split(line,"要")
+      name := strings.TrimSpace(nameAndArgs[0])
+      arglist := strings.Split(strings.TrimSpace(line),string(','))
+      tempVar := variable.Variable{}
+      tempVar.TypeCode = 10
       i++
-      if input_line[i] == '(' {
-        output_rune_arr = append(output_rune_arr,input_rune_arr[i])
-        var temp_rune_arr []rune
-        parenth_count = 1
-        for i < len(input_rune_arr) &&  {
-          i++
-          temp_rune_arr == append(temp_rune_arr,input_rune_arr[i])
-          if input_rune_arr[i] == '(' {
-            parenth_count++
-          }
-          if input_rune_arr[i] == ')' {
-            parenth_count--
-          }
-          if parenth_count == 0 {
-            break
-          }
-          temp_rune_arr == append(temp_rune_arr,input_rune_arr[i])
+      tempFuncVal := []string{}
+      for i < len(lines) {
+        if strings.TrimSpace(lines[i]) == "结束函数" {
+          break
         }
-        if i >= len(input_rune_arr) {
-          fmt.Println(messages.)
-          os.Exit(0)
-        }
-        output_rune_arr == append(output_rune_arr,strip_whitespace(temp_rune_arr))
-        output_rune_arr == append(output_rune_arr,')')
+        tempFuncVal = append(tempFuncVal,lines[i])
+        i++
       }
-    } else if input_rune_arr[i] == '"' || input_rune_arr[i] == '\'' || input_rune_arr[i] == '”' || input_rune_arr[i] == '“' || input_rune_arr[i] == '‘' || input_rune_arr[i] == '’' {
-      in_quotes = !in_quotes
-      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
-    } else if input_rune_arr[i] == ' ' || input_rune_arr[i] == '\t' && in_quotes {
-      continue
-    } else {
-      output_rune_arr = append(output_rune_arr,input_rune_arr[i])
+      tempVar.FuncVal = tempFuncVal
+      tempArgList := []string{}
+      for _, arg := range arglist {
+        tempArgList = append(tempArgList,arg)
+      }
+      tempVar.FuncArgs = tempArgList
+      variableMap[0][name] = tempVar
     }
   }
 }
