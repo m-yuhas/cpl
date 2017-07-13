@@ -54,15 +54,17 @@ func main() {
       fmt.Println(os.Stderr,err)
     }
 
+    workspace := []map[string]variable.Variable{}
+    workspace = append(variableMap, map[string]variable.Variable{})
     lines = strip_whitespace(lines)
     lines = find_comments(lines)
+    lines, workspace, err = find_functions(lines,workspace)
+    if err != nil {
+      fmt.Println(err)
+      os.Exit()
+    }
 
-
-    variableMap := []map[string]variable.Variable{}
-    variableMap = append(variableMap, map[string]variable.Variable{})
-
-
-    parser.ParseScript(lines,variableMap)
+    parser.ParseScript(lines,workspace)
   }
 }
 
@@ -172,31 +174,90 @@ Returns:
   map[string]variable.Variable - Workspace with functions added
   error - Fires if an error occurs while parsing the array
 */
-func find_functions( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[]variable.Variable, error ) {
+func find_functions( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[string]variable.Variable, error ) {
+  var out_str_arr []string
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"函数") {
       func_definition := strings.TrimPrefix(str_arr[i],"函数")
-      nameAndArgs := strings.Split(line,"要")
-      name := strings.TrimSpace(nameAndArgs[0])
-      arglist := strings.Split(strings.TrimSpace(line),string(','))
-      tempVar := variable.Variable{}
-      tempVar.TypeCode = 10
+      name_and_args := strings.Split(line,"要")
+      if len(name_and_args) > 2 {
+        return str_arr, workspace, errors.New(messges.InvalidFunctionDeclaration) //TODO include line number in error message
+      } //TODO Check args for invalid characters
+      arg_list := strings.Split(name_and_args[1],string(',')) //TODO make this work with the other kind of comma
+      new_function := variable.Variable{}
+      new_function.TypeCode = 10
       i++
-      tempFuncVal := []string{}
-      for i < len(lines) {
-        if strings.TrimSpace(lines[i]) == "结束函数" {
+      function_content := []string{}
+      for i < len(str_arr) {
+        if str_arr[i] == "结束函数" {
           break
         }
-        tempFuncVal = append(tempFuncVal,lines[i])
+        if str_arr[i].HasPrefix(str_arr[i],"函数") {
+          return str_arr, workspace, errors.New(messges.FunctionWithinFunction)
+        }
+        function_content = append(function_content,str_arr[i])
         i++
       }
-      tempVar.FuncVal = tempFuncVal
-      tempArgList := []string{}
-      for _, arg := range arglist {
-        tempArgList = append(tempArgList,arg)
+      if i >= len(str_arr) {
+        return str_arr, workspace, errors.New(messges.EndFunctionNotFound)
       }
-      tempVar.FuncArgs = tempArgList
-      variableMap[0][name] = tempVar
+      new_function.FuncVal = function_content
+      new_function.FuncArgs = name_and_args[1]
+      if workspace[name_and_args[0]] != nil {
+        return str_arr, workspace, errors.New(messges.DuplicateName) //TODO include function name in error message
+      }
+      workspace[name_and_args[0]] = new_function
+    } else {
+      out_str_arr = append(out_str_arr,str_arr[i])
+    }
+  }
+  return out_str_arr, workspace, nil
+}
+
+/*
+find_classes - find functions, store them to the workspace, and remove from line array
+Arguments:
+  str_arr - Array of strings
+  map[string]variable.Variable - Workspace to which to add classes
+Returns:
+  []string - Modified Array of strings with classes removed
+  map[string]variable.Variable - Workspace with classes added
+  error - Fires if an error occurs while parsing the array
+*/
+func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[string]variable.Variable, error ) {
+  var out_str_arr []string
+  for i := 0; i < len(str_arr); i++ {
+    if strings.HasPrefix(str_arr[i],"类") {
+      func_definition := strings.TrimPrefix(str_arr[i],"类")
+      name_and_super_class := strings.Split(line,"是")
+      if len(name_and_super_class) > 2 {
+        return str_arr, workspace, errors.New(messges.InvalidClassDeclaration) //TODO include line number in error message
+      } //TODO Check args for invalid characters
+      new_class := variable.Variable{}
+      new_function.TypeCode = 11
+      i++
+      class_content := []string{}
+      for i < len(str_arr) {
+        if str_arr[i] == "结束类" {
+          break
+        }
+        if str_arr[i].HasPrefix(str_arr[i],"类") {
+          return str_arr, workspace, errors.New(messges.ClassWithinClass)
+        }
+        class_content = append(class_content,str_arr[i])
+        i++
+      }
+      if i >= len(str_arr) {
+        return str_arr, workspace, errors.New(messges.EndClassNotFound)
+      }
+      /*
+      new_class.ClassVal = content
+      new_function.FuncArgs = name_and_args[1]
+      if workspace[name_and_args[0]] != nil {
+        return str_arr, workspace, errors.New(messges.DuplicateName) //TODO include function name in error message
+      }
+      workspace[name_and_args[0]] = new_function
+      */
     }
   }
 }
