@@ -23,6 +23,7 @@ import (
     "bufio"
     "os"
     "strings"
+    "errors"
     "cpl/variable"
     "cpl/parser"
     "cpl/messages"
@@ -55,13 +56,13 @@ func main() {
     }
 
     workspace := []map[string]variable.Variable{}
-    workspace = append(variableMap, map[string]variable.Variable{})
+    workspace = append(workspace, map[string]variable.Variable{})
     lines = strip_whitespace(lines)
     lines = find_comments(lines)
-    lines, workspace, err = find_functions(lines,workspace)
+    lines, workspace[0], err = find_functions(lines,workspace[0])
     if err != nil {
       fmt.Println(err)
-      os.Exit()
+      os.Exit(0)
     }
 
     parser.ParseScript(lines,workspace)
@@ -145,9 +146,9 @@ func strip_whitespace( str_arr []string ) []string {
         output_line = append(output_line,input_line[j])
         j++
         // Check that the '#' is not the final character in a line
-        if j >= len(input_line); j++ {
+        if j >= len(input_line) {
           fmt.Println(messages.LineEndsWithPoundSign)
-          os.Exit()
+          os.Exit(0)
         }
         output_line = append(output_line,input_line[j])
       } else if input_line[j] == '"' || input_line[j] == '\'' || input_line[j] == '”' || input_line[j] == '“' || input_line[j] == '‘' || input_line[j] == '’' {
@@ -179,9 +180,9 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"函数") {
       func_definition := strings.TrimPrefix(str_arr[i],"函数")
-      name_and_args := strings.Split(line,"要")
+      name_and_args := strings.Split(str_arr[i],"要")
       if len(name_and_args) > 2 {
-        return str_arr, workspace, errors.New(messges.InvalidFunctionDeclaration) //TODO include line number in error message
+        return str_arr, workspace, errors.New(messages.InvalidFunctionDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
       arg_list := strings.Split(name_and_args[1],string(',')) //TODO make this work with the other kind of comma
       new_function := variable.Variable{}
@@ -192,19 +193,19 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
         if str_arr[i] == "结束函数" {
           break
         }
-        if str_arr[i].HasPrefix(str_arr[i],"函数") {
-          return str_arr, workspace, errors.New(messges.FunctionWithinFunction)
+        if strings.HasPrefix(str_arr[i],"函数") {
+          return str_arr, workspace, errors.New(messages.FunctionWithinFunction)
         }
         function_content = append(function_content,str_arr[i])
         i++
       }
       if i >= len(str_arr) {
-        return str_arr, workspace, errors.New(messges.EndFunctionNotFound)
+        return str_arr, workspace, errors.New(messages.EndFunctionNotFound)
       }
       new_function.FuncVal = function_content
-      new_function.FuncArgs = name_and_args[1]
-      if workspace[name_and_args[0]] != nil {
-        return str_arr, workspace, errors.New(messges.DuplicateName) //TODO include function name in error message
+      new_function.FuncArgs = arg_list
+      if _, ok := workspace[name_and_args[0]]; ok {
+        return str_arr, workspace, errors.New(messages.DuplicateName) //TODO include function name in error message
       }
       workspace[name_and_args[0]] = new_function
     } else {
@@ -229,26 +230,26 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"类") {
       func_definition := strings.TrimPrefix(str_arr[i],"类")
-      name_and_super_class := strings.Split(line,"是")
+      name_and_super_class := strings.Split(str_arr[i],"是")
       if len(name_and_super_class) > 2 {
-        return str_arr, workspace, errors.New(messges.InvalidClassDeclaration) //TODO include line number in error message
+        return str_arr, workspace, errors.New(messages.InvalidClassDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
       new_class := variable.Variable{}
-      new_function.TypeCode = 11
+      new_class.TypeCode = 11
       i++
       class_content := []string{}
       for i < len(str_arr) {
         if str_arr[i] == "结束类" {
           break
         }
-        if str_arr[i].HasPrefix(str_arr[i],"类") {
-          return str_arr, workspace, errors.New(messges.ClassWithinClass)
+        if strings.HasPrefix(str_arr[i],"类") {
+          return str_arr, workspace, errors.New(messages.ClassWithinClass)
         }
         class_content = append(class_content,str_arr[i])
         i++
       }
       if i >= len(str_arr) {
-        return str_arr, workspace, errors.New(messges.EndClassNotFound)
+        return str_arr, workspace, errors.New(messages.EndClassNotFound)
       }
       /*
       new_class.ClassVal = content
@@ -260,4 +261,5 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
       */
     }
   }
+  return str_arr, workspace, nil
 }
