@@ -64,6 +64,13 @@ func main() {
       fmt.Println(err)
       os.Exit(0)
     }
+    if strings.HasPrefix(lines[0],"#") {
+      lines = append(lines[:0],lines[1:]...)
+    }
+
+    for i := 0; i < len(lines); i++ {
+      fmt.Println(lines[i])
+    }
 
     parser.ParseScript(lines,workspace)
   }
@@ -160,7 +167,9 @@ func strip_whitespace( str_arr []string ) []string {
         output_line = append(output_line,input_line[j])
       }
     }
-    output_str_arr = append(output_str_arr,string(output_line))
+    if string(output_line) != "" {
+      output_str_arr = append(output_str_arr,string(output_line))
+    }
   }
   return output_str_arr
 }
@@ -180,7 +189,7 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"函数") {
       func_definition := strings.TrimPrefix(str_arr[i],"函数")
-      name_and_args := strings.Split(str_arr[i],"要")
+      name_and_args := strings.Split(func_definition,"要")
       if len(name_and_args) > 2 {
         return str_arr, workspace, errors.New(messages.InvalidFunctionDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
@@ -229,8 +238,8 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
   var out_str_arr []string
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"类") {
-      func_definition := strings.TrimPrefix(str_arr[i],"类")
-      name_and_super_class := strings.Split(str_arr[i],"是")
+      class_definition := strings.TrimPrefix(str_arr[i],"类")
+      name_and_super_class := strings.Split(class_definition,"是")
       if len(name_and_super_class) > 2 {
         return str_arr, workspace, errors.New(messages.InvalidClassDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
@@ -249,7 +258,7 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
         i++
       }
       if i >= len(str_arr) {
-        return str_arr, workspace, errors.New(messages.EndClassNotFound)
+        return out_str_arr, workspace, errors.New(messages.EndClassNotFound)
       }
       /*
       new_class.ClassVal = content
