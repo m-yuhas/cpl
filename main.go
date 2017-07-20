@@ -68,10 +68,6 @@ func main() {
       lines = append(lines[:0],lines[1:]...)
     }
 
-    for i := 0; i < len(lines); i++ {
-      fmt.Println(lines[i])
-    }
-
     parser.ParseScript(lines,workspace)
   }
 }

@@ -22,3 +22,5 @@ const DuplicateName string = "错误：名号已经用的"
 const InvalidClassDeclaration string = "错误：不当类声明"
 const ClassWithinClass string = "错误：不能创造类在另外一个类内面"
 const EndClassNotFound string = "错误：找不到对应的结束类"
+
+const OutputCommandSyntaxError string = "错误：输出命令需要括弧"

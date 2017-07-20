@@ -226,3 +226,16 @@ func (v *Variable) Not() (Variable, error) {
   returnVar.BoolVal = !v.BoolVal
   return returnVar, nil
 }
+
+func (v *Variable) ToString() (string, error) {
+  switch v.TypeCode {
+  case 0:
+    return "", errors.New("错误：变量有不对的类")
+  case 1:
+    if v.BoolVal {
+      return "真", nil
+    } else {
+      return "假", nil
+    }
+  }
+}

@@ -14,6 +14,7 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   expIndex := -1
   optype := -1
   currIndex := -1
+  inquotes := false
   var currRune rune
   for pos, _ := range expression {
     currRune = []rune(expression)[pos]

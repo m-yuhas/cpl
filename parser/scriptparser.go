@@ -8,15 +8,14 @@ import (
   //"strconv"
 )
 
-func ParseScript( script []string, variableMap []map[string]variable.Variable ) []map[string]variable.Variable {
-  iflevel := 0
+func ParseScript( script []string, workspace []map[string]variable.Variable ) ([]map[string]variable.Variable, error) {
+  ifLevel := 0
   index := 0
-  localMap := map[string]variable.Variable{}
-  variableMap = append(variableMap,localMap)
+  localWorkspace := map[string]variable.Variable{}
+  workspace = append(workspace,localWorkspace)
   for index < len(script) {
-    if strings.HasPrefix(script[index],"注意:") || strings.HasPrefix(script[index],"#") {
-    } else if strings.HasPrefix(script[index],"输出:") {
-      Output(script[index],variableMap)
+    if strings.HasPrefix(script[index],"输出") {
+      Output(script[index],workspace)
     } else if strings.HasPrefix(script[index],"如果") {
       text := strings.TrimPrefix(script[index],"如果")
       trueFalse, err := BooleanParser(text,variableMap)
@@ -192,36 +191,13 @@ func ParseScript( script []string, variableMap []map[string]variable.Variable ) 
   return variableMap[:len(variableMap)-1]
 }
 
-func Output( text string, variableMap []map[string]variable.Variable ) {
-  text = strings.TrimPrefix(text,"输出:")
-  text = strings.TrimSpace(text)
-  /*var outVal int64
-  for _, vmap := range variableMap {
-    if val, exists := vmap[text]; exists {
-      outVal = val.IntVal
-      break;
-    }
-  }*/
+func Output( text string, workspace []map[string]variable.Variable ) error {
+  text_to_parse = slice[](strings.TrimPrefix(text,"输出"))
+  if text_to_parse[0] == '(' && text_to_parse[len(text_to_parse)-1] == ')' {
+    text_to_parse = strings.TrimPrefix('(')
+    text_to_parse = strings.TrimSuffix(')')
+  } else {
+    return errors.New(messages.OutputCommandSyntaxError)
+  }
   fmt.Println(StringParser(text,variableMap))
-  /*
-  text = strings.TrimSuffix(text,"\"")
-  text = strings.TrimPrefix(text,"\"")
-  outString := ""
-  index := 0
-  letter := ' '
-  for index < len(text) {
-    letter = rune(text[index])
-    if letter == '#' {
-      varName := ' '
-      index++
-      for letter != ' ' {
-        varName = append(varName,rune(text[index])
-        index++
-      }
-      outString += strconv.ParseInt(variableMap[string(varName[:len(varName)])],10,64)
-      continue
-    }
-    outString = append(outString,string(text[index]))
-  }*/
-  //fmt.Println(outVal)
 }
