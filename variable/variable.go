@@ -237,5 +237,12 @@ func (v *Variable) ToString() (string, error) {
     } else {
       return "假", nil
     }
+  case 2:
+    return strconv.FormatInt(v.IntVal,10), nil
+  case 3:
+    return strconv.FormatFloat(v.FloatVal,'f',-1,64), nil
+  case 4:
+    return v.StringVal, nil
   }
+  return "", errors.New("错误：变量有不对的类")
 }

@@ -192,7 +192,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
 }
 
 func Output( text string, workspace []map[string]variable.Variable ) error {
-  text_to_parse = slice[](strings.TrimPrefix(text,"输出"))
+  text_to_parse = []slice(strings.TrimPrefix(text,"输出"))
   if text_to_parse[0] == '(' && text_to_parse[len(text_to_parse)-1] == ')' {
     text_to_parse = strings.TrimPrefix('(')
     text_to_parse = strings.TrimSuffix(')')
