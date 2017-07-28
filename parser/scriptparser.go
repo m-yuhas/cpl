@@ -9,7 +9,7 @@ import (
 )
 
 func ParseScript( script []string, workspace []map[string]variable.Variable ) ([]map[string]variable.Variable, error) {
-  ifLevel := 0
+  iflevel := 0
   index := 0
   localWorkspace := map[string]variable.Variable{}
   workspace = append(workspace,localWorkspace)
@@ -18,7 +18,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
       Output(script[index],workspace)
     } else if strings.HasPrefix(script[index],"如果") {
       text := strings.TrimPrefix(script[index],"如果")
-      trueFalse, err := BooleanParser(text,variableMap)
+      trueFalse, err := BooleanParser(text,workspace)
       if err != nil {
         fmt.Println(err)
       }
@@ -71,10 +71,10 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
       initCondArray[0] = strings.TrimSpace(initCondArray[0])
       initCondArray[1] = strings.TrimSpace(initCondArray[1])
       var pos2 int
-      for pos, vmap := range variableMap {
+      for pos, vmap := range workspace {
         if _, exists := vmap[initCondArray[0]]; exists {
           var err error
-          vmap[initCondArray[0]], err = AlgebraicParser(initCondArray[1],variableMap)
+          vmap[initCondArray[0]], err = AlgebraicParser(initCondArray[1],workspace)
           if err != nil {
             fmt.Println(err)
           }
@@ -91,8 +91,8 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
         loopContents = append(loopContents,script[index])
         index++
       }
-      var1 := variableMap[pos2][initCondArray[0]]
-      temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)
+      var1 := workspace[pos2][initCondArray[0]]
+      temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),workspace)
       if err != nil {
         fmt.Println(err)
       }
@@ -104,11 +104,11 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
         //fmt.Println(variableMap)
         //fmt.Println(variableMap[pos2][initCondArray[0]].IntVal)
         //fmt.Println("HERE")
-        variableMap = ParseScript(loopContents,variableMap)
+        workspace, _ = ParseScript(loopContents,workspace)
         //fmt.Println()
-        var1 = variableMap[pos2][initCondArray[0]]
+        var1 = workspace[pos2][initCondArray[0]]
 
-        temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),variableMap)
+        temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),workspace)
         if err != nil {
           fmt.Println(err)
         }
@@ -130,13 +130,13 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
         loopContents = append(loopContents,script[index])
         index++
       }
-      var1, err := BooleanParser(expression,variableMap)
+      var1, err := BooleanParser(expression,workspace)
       if err != nil {
         fmt.Println(err)
       }
       for var1.BoolVal {
-        variableMap = ParseScript(loopContents,variableMap)
-        var1, err = BooleanParser(expression,variableMap)
+        workspace, _ = ParseScript(loopContents,workspace)
+        var1, err = BooleanParser(expression,workspace)
       }
       //fmt.Println("while loop")
     } else if strings.HasPrefix(script[index],"结束圈") {
@@ -161,10 +161,10 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
         fmt.Println("ERROR invalid character")
       }
       modified := false
-      for _, vmap := range variableMap {
+      for _, vmap := range workspace {
         if _, exists := vmap[expressionArray[0]]; exists {
           var err error
-          vmap[expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+          vmap[expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],workspace)
           if err != nil {
             fmt.Println(err)
           }
@@ -174,7 +174,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
       }
       if !modified {
         var err error
-        variableMap[len(variableMap)-1][expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap)
+        workspace[len(workspace)-1][expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],workspace)
         if err != nil {
           fmt.Println(err)
         }
@@ -188,14 +188,14 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
     }
     index++
   }
-  return variableMap[:len(variableMap)-1]
+  return workspace[:len(workspace)-1], nil
 }
 
 func Output( text string, workspace []map[string]variable.Variable ) error {
-  text_to_parse = []slice(strings.TrimPrefix(text,"输出"))
+  text_to_parse := []rune(strings.TrimPrefix(text,"输出"))
   if text_to_parse[0] == '(' && text_to_parse[len(text_to_parse)-1] == ')' {
-    text_to_parse = strings.TrimPrefix('(')
-    text_to_parse = strings.TrimSuffix(')')
+    text_to_parse = strings.TrimPrefix(text_to_parse,'(')
+    text_to_parse = strings.TrimSuffix(text_to_parse,')')
   } else {
     return errors.New(messages.OutputCommandSyntaxError)
   }
