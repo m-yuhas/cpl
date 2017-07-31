@@ -5,6 +5,8 @@ import (
   "strings"
   "cpl/variable"
   "os"
+  "errors"
+  "cpl/messages"
   //"strconv"
 )
 
@@ -193,11 +195,15 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
 
 func Output( text string, workspace []map[string]variable.Variable ) error {
   text_to_parse := []rune(strings.TrimPrefix(text,"输出"))
-  if text_to_parse[0] == '(' && text_to_parse[len(text_to_parse)-1] == ')' {
-    text_to_parse = strings.TrimPrefix(text_to_parse,'(')
-    text_to_parse = strings.TrimSuffix(text_to_parse,')')
+  if ( text_to_parse[0] == '(' || text_to_parse[0] == '（' ) && ( text_to_parse[len(text_to_parse)-1] == ')' text_to_parse[len(text_to_parse)-1] == '）' ) {
+    text_to_parse = text_to_parse[1:len(text_to_parse)-2]
   } else {
     return errors.New(messages.OutputCommandSyntaxError)
   }
-  fmt.Println(StringParser(text,variableMap))
+  evaluated_expression, err := AlgebraicParser(string(text_to_parse),workspace)
+  if err != nil {
+    return err //TODO Find way to append current line to error
+  }
+  fmt.Println(evaluated_expression.ToString())
+  return nil
 }

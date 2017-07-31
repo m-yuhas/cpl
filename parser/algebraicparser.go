@@ -15,10 +15,9 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   optype := -1
   currIndex := -1
   inquotes := false
-  var currRune rune
-  for pos, _ := range expression {
-    currRune = []rune(expression)[pos]
-    if currRune == rune('(') {
+  expression_arr := []rune(expression)
+  for i := 0; i < len(expression_arr); i++ {
+    if expression_arr[i] == '(' || expression_arr[i] == '（）' {
       parenthCount += 1
       continue
     } else if currRune == rune(')') {
