@@ -7,53 +7,95 @@ import (
   //"fmt"
 )
 
+type OpType int
+
+const (
+  ADD OpType = 1 << iota
+  SUB
+  MUL
+  DIV
+  MOD
+  EXP
+  FAC
+  AND
+  OR
+  NOT
+  EQU
+  GT
+  LT
+  GTE
+  LTE
+  NEQ
+)
+
 func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) (variable.Variable, error)  {
+  inQuotes := false
   parenthCount := 0
   addSubIndex := -1
   mulDivIndex := -1
   expIndex := -1
+  facIndex := -1
+  andIndex := -1
+  orIndex := -1
+  notIndex := -1
+  equIndex := -1
   optype := -1
   currIndex := -1
   inquotes := false
   expression_arr := []rune(expression)
   for i := 0; i < len(expression_arr); i++ {
-    if expression_arr[i] == '(' || expression_arr[i] == '（）' {
+    if expression_arr[i] == '(' || expression_arr[i] == '（' {
       parenthCount += 1
       continue
-    } else if currRune == rune(')') {
+    } else if expression_arr[i] == ')' || expression_arr[i] == '）' {
       parenthCount -= 1
       continue
-    } else if parenthCount == 0 {
-      switch currRune {
+    } else if input_line[i] == '"' || input_line[j] == '\'' || input_line[j] == '”' || input_line[j] == '“' || input_line[j] == '‘' || input_line[j] == '’' {
+      inQuotes = !inQuotes
+    } else if inQuotes && input_line[i] == '#' {
+      i++
+      continue
+    } else if parenthCount == 0 && !inQuotes {
+      switch expression_arr[i] {
       case '+':
-        addSubIndex = pos
-        optype = 1
-        currIndex = pos
+        addSubIndex = i
+        optype = ADD
         break
       case '-':
-         addSubIndex = pos
-         optype = 2
-         currIndex = pos
-         break
+        addSubIndex = i
+        optype = SUB
+        break
       case '*':
-        mulDivIndex = pos
-        optype = 3
-        currIndex = pos
+        mulDivIndex = i
+        optype = MUL
         break
       case '/':
-        mulDivIndex = pos
-        optype = 4
-        currIndex = pos
+        mulDivIndex = i
+        optype = DIV
         break
       case '%':
-        mulDivIndex = pos
-        optype = 5
-        currIndex = pos
+        mulDivIndex = i
+        optype = MOD
         break
       case '^':
-        expIndex = pos
-        optype = 6
-        currIndex = pos
+        expIndex = i
+        optype = EXP
+        break
+      case '!':
+        facIndex = i
+        optype = FAC
+        break
+      case '与':
+        andIndex = i
+        optype = AND
+        break
+      case '或':
+        orIndex = i
+        optype = OR
+        break
+      case '非':
+        notIndex = i
+        optype = NOT
         break
       }
     }
