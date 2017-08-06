@@ -4,13 +4,14 @@ import (
   "cpl/variable"
   "strconv"
   "strings"
-  //"fmt"
+  "fmt"
 )
 
 type OpType int
 
 const (
-  ADD OpType = 1 << iota
+  NULL OpType = 1 << iota
+  ADD
   SUB
   MUL
   DIV
@@ -44,9 +45,9 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   orIndex := -1
   notIndex := -1
   equIndex := -1
-  optype := -1
-  currIndex := -1
-  inquotes := false
+  optype := NULL
+  //currIndex := -1
+  //inquotes := false
   expression_arr := []rune(expression)
   for i := 0; i < len(expression_arr); i++ {
     if expression_arr[i] == '(' || expression_arr[i] == '（' {
@@ -55,9 +56,10 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
     } else if expression_arr[i] == ')' || expression_arr[i] == '）' {
       parenthCount -= 1
       continue
-    } else if input_line[i] == '"' || input_line[j] == '\'' || input_line[j] == '”' || input_line[j] == '“' || input_line[j] == '‘' || input_line[j] == '’' {
+    } else if expression_arr[i] == '"' || expression_arr[i] == '\'' || expression_arr[i] == '”' || expression_arr[i] == '“' || expression_arr[i] == '‘' || expression_arr[i] == '’' {
+      //fmt.Println("HERE in this one")
       inQuotes = !inQuotes
-    } else if inQuotes && input_line[i] == '#' {
+    } else if inQuotes && expression_arr[i] == '#' {
       i++
       continue
     } else if parenthCount == 0 && !inQuotes {
@@ -135,14 +137,144 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
               optype = GTE4
             } else if expression_arr[i] == '小' && expression_arr[i+1] == '于' && expression_arr[i+2] == '等' && expression_arr[i+3] == '于' {
               equIndex = i
-              opytpe = LTE4
+              optype = LTE4
             }
           }
         }
       }
     }
   }
-  //fmt.Println(expression)
+  fmt.Println(expression)
+  if orIndex != -1 {
+    part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+    if err != nil {
+      return part1, err
+    }
+    part2, err := AlgebraicParser(string(expression_arr[equIndex+1:]),variableMap)
+    if err != nil {
+      return part2, err
+    }
+    return part1.Or(part2)
+  }
+  if andIndex != -1 {
+    part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+    if err != nil {
+      return part1, err
+    }
+    part2, err := AlgebraicParser(string(expression_arr[equIndex+1:]),variableMap)
+    if err != nil {
+      return part2, err
+    }
+    return part1.And(part2)
+  }
+  if notIndex != -1 {
+    part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+    if err != nil {
+      return part1, err
+    }
+    return part1.Not()
+  }
+  if equIndex != -1 {
+    if optype == EQU {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+1:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Eq(part2)
+    }
+    if optype == EQU2 {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+2:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Eq(part2)
+    }
+    if optype == NEQ {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+3:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Neq(part2)
+    }
+    if optype == GT {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+1:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Gt(part2)
+    }
+    if optype == LT {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+1:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Lt(part2)
+    }
+    if optype == GT2 {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+2:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Gt(part2)
+    }
+    if optype == LT2 {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+2:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Lt(part2)
+    }
+    if optype == GTE4 {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+4:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Gte(part2)
+    }
+    if optype == LTE4 {
+      part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
+      if err != nil {
+        return part1, err
+      }
+      part2, err := AlgebraicParser(string(expression_arr[equIndex+4:]),variableMap)
+      if err != nil {
+        return part2, err
+      }
+      return part1.Lte(part2)
+    }
+  }
   if addSubIndex != -1 {
     if optype == ADD {
       part1, err := AlgebraicParser(string(expression_arr[:addSubIndex]), variableMap)
@@ -167,52 +299,59 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
     }
   } else if mulDivIndex != -1 {
     if optype == MUL {
-      part1, err := AlgebraicParser(string(expression_arr[:addSubIndex]),variableMap)
+      part1, err := AlgebraicParser(string(expression_arr[:mulDivIndex]),variableMap)
       if err != nil {
         return part1, err
       }
-      part2, err := AlgebraicParser(string(expression_arr[addSubIndex+1:]),variableMap)
+      part2, err := AlgebraicParser(string(expression_arr[mulDivIndex+1:]),variableMap)
       if err != nil {
         return part2, err
       }
       return part1.Mul(part2)
     } else if optype == DIV {
-      part1, err := AlgebraicParser(string(expression_arr[:addSubIndex]),variableMap)
+      part1, err := AlgebraicParser(string(expression_arr[:mulDivIndex]),variableMap)
       if err != nil {
         return part1, err
       }
-      part2, err := AlgebraicParser(string(expression_arr[addSubIndex+1:]),variableMap)
+      part2, err := AlgebraicParser(string(expression_arr[mulDivIndex+1:]),variableMap)
       if err != nil {
         return part2, err
       }
       return part1.Div(part2)
-    } else if optype == 5 {
-      part1, err := AlgebraicParser(firsthalf,variableMap)
+    } else if optype == MOD {
+      part1, err := AlgebraicParser(string(expression_arr[:mulDivIndex]),variableMap)
       if err != nil {
         return part1, err
       }
-      part2, err := AlgebraicParser(lasthalf,variableMap)
+      part2, err := AlgebraicParser(string(expression_arr[mulDivIndex+1:]),variableMap)
       if err != nil {
         return part2, err
       }
       return part1.Mod(part2)
     }
   } else if expIndex != -1 {
-    firsthalf := strings.TrimSpace(expression[:currIndex])
-    lasthalf := strings.TrimSpace(expression[currIndex+1:])
-    part1, err := AlgebraicParser(firsthalf,variableMap)
+    part1, err := AlgebraicParser(string(expression_arr[:expIndex]),variableMap)
     if err != nil {
       return part1, err
     }
-    part2, err := AlgebraicParser(lasthalf,variableMap)
+    part2, err := AlgebraicParser(string(expression_arr[expIndex+1:]),variableMap)
     if err != nil {
       return part2, err
     }
     return part1.Exp(part2)
-  } else if expression[0] == '(' && expression[len(expression)-1] == ')' {
-    return AlgebraicParser(strings.TrimSpace(expression[1:len(expression)-1]),variableMap)
+  } else if facIndex != -1 {
+    part1, err := AlgebraicParser(string(expression_arr[:expIndex]),variableMap)
+    if err != nil {
+      return part1, err
+    }
+    return part1.Fac()
+  } else if expression_arr[0] == '(' && expression_arr[len(expression_arr)-1] == ')' {
+    return AlgebraicParser(string(expression_arr[1:len(expression_arr)-1]),variableMap)
+  } else if (expression_arr[0] == '"' || expression_arr[0] == '\'' || expression_arr[0] == '”' || expression_arr[0] == '“' || expression_arr[0] == '‘' || expression_arr[0] == '’') &&  (expression_arr[len(expression_arr)-1] == '"' || expression_arr[len(expression_arr)-1] == '\'' || expression_arr[len(expression_arr)-1] == '”' || expression_arr[len(expression_arr)-1] == '“' || expression_arr[len(expression_arr)-1] == '‘' || expression_arr[len(expression_arr)-1] == '’') {
+    fmt.Println(string(expression_arr[1:len(expression_arr)-1]))
+    return StringParser(string(expression_arr[1:len(expression_arr)-1]))
   } else {
-    return EvaluateAtom(expression,variableMap)
+    return EvaluateAtom(string(expression_arr),variableMap)
   }
   return variable.Variable{}, nil
 }

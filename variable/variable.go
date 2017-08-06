@@ -185,10 +185,24 @@ func (v *Variable) Exp(exponent Variable) (Variable, error) {
   return returnVar, nil
 }
 
+func (v *Variable) Fac() (Variable, error) {
+  returnVar := Variable{}
+  returnVar.TypeCode = 2
+  returnVar.IntVal = v.IntVal
+  return returnVar, nil
+}
+
 func (v *Variable) Eq(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal == operand.IntVal
+  return returnVar, nil
+}
+
+func (v *Variable) Neq(operand Variable) (Variable, error) {
+  returnVar := Variable{}
+  returnVar.TypeCode = 1
+  returnVar.BoolVal = v.IntVal != operand.IntVal
   return returnVar, nil
 }
 
@@ -199,10 +213,24 @@ func (v *Variable) Lt(operand Variable) (Variable, error) {
   return returnVar, nil
 }
 
+func (v *Variable) Lte(operand Variable) (Variable, error) {
+  returnVar := Variable{}
+  returnVar.TypeCode = 1
+  returnVar.BoolVal = v.IntVal <= operand.IntVal
+  return returnVar, nil
+}
+
 func (v *Variable) Gt(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.IntVal > operand.IntVal
+  return returnVar, nil
+}
+
+func (v *Variable) Gte(operand Variable) (Variable, error) {
+  returnVar := Variable{}
+  returnVar.TypeCode = 1
+  returnVar.BoolVal = v.IntVal >= operand.IntVal
   return returnVar, nil
 }
 

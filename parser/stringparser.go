@@ -2,51 +2,37 @@ package parser
 
 import (
   "cpl/variable"
-  "strconv"
+  "errors"
+  //"strconv"
   //"strings"
-  "fmt"
+  //"fmt"
 )
 
-func StringParser(expression string, variableMap []map[string]variable.Variable ) string {
-  //var startQuoteType rune
-  inQuotes := false
-  var outputSlice string
-  for i := 0; i < len(expression)-1; i++ {
-    if expression[i] == '"' {
-      //startQuoteType = '"'
-      inQuotes = !inQuotes
-      continue
-    }
-    if inQuotes && expression[i] == '#' {
-      sliceToParse := ""
+func StringParser( expression string ) ( variable.Variable, error ) {
+  returnVar := variable.Variable{}
+  expression_arr := []rune(expression)
+  var output_arr []rune
+  for i := 0; i < len(expression_arr); i++ {
+    if expression_arr[i] == '"' || expression_arr[i] == '\'' || expression_arr[i] == '”' || expression_arr[i] == '“' || expression_arr[i] == '‘' || expression_arr[i] == '’' {
+      return returnVar, errors.New("错误：变量有不对的类")
+    } else if expression_arr[i] == '#' {
+      if i >= len(expression_arr) {
+        return returnVar, errors.New("Fill in Later")
+      }
       i++
-      for i < len(expression)-1 {
-        if expression[i] == ' ' {
-          i++
-          break
-        }
-        if expression[i] == ')' {
-          //sliceToParse = append(sliceToParse,string(expression[i]))
-          sliceToParse = sliceToParse + string(expression[i])
-          i++
-          break
-        }
-        //sliceToParse = append(sliceToParse,string(expression[i]))
-        sliceToParse = sliceToParse + string(expression[i])
+      if expression_arr[i] == '#' || expression_arr[i] == '"' || expression_arr[i] == '\'' || expression_arr[i] == '”' || expression_arr[i] == '“' || expression_arr[i] == '‘' || expression_arr[i] == '’'{
+        output_arr = append(output_arr,expression_arr[i])
+      } else if expression_arr[i] == '换' && i >= len(expression_arr) {
         i++
+        if expression_arr[i] == '行' {
+          output_arr = append(output_arr,'\n')
+        }
       }
-      //outputSlice = append(outputSlice,string(AlgebraicParser(string(sliceToParse),variableMap).IntVal))
-      //fmt.Println(string(sliceToParse))
-      //outputSlice = outputSlice + AlgebraicParser(string(sliceToParse),variableMap).IntVal
-      temp, err := AlgebraicParser(string(sliceToParse),variableMap)
-      if err != nil {
-        fmt.Println(err)
-      }
-      outputSlice = string(strconv.AppendInt([]byte(outputSlice),temp.IntVal,10))
-      continue
+    } else {
+      output_arr = append(output_arr,expression_arr[i])
     }
-    //outputSlice = append(outputSlice,string(expression[i]))
-    outputSlice = outputSlice + string(expression[i])
   }
-  return string(outputSlice)
+  returnVar.TypeCode = 4
+  returnVar.StringVal = string(output_arr)
+  return returnVar, nil
 }

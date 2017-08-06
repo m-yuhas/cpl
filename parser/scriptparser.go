@@ -195,8 +195,8 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
 
 func Output( text string, workspace []map[string]variable.Variable ) error {
   text_to_parse := []rune(strings.TrimPrefix(text,"输出"))
-  if ( text_to_parse[0] == '(' || text_to_parse[0] == '（' ) && ( text_to_parse[len(text_to_parse)-1] == ')' text_to_parse[len(text_to_parse)-1] == '）' ) {
-    text_to_parse = text_to_parse[1:len(text_to_parse)-2]
+  if ( text_to_parse[0] == '(' || text_to_parse[0] == '（' ) && ( text_to_parse[len(text_to_parse)-1] == ')' || text_to_parse[len(text_to_parse)-1] == '）' ) {
+    text_to_parse = text_to_parse[1:len(text_to_parse)-1]
   } else {
     return errors.New(messages.OutputCommandSyntaxError)
   }
@@ -204,6 +204,10 @@ func Output( text string, workspace []map[string]variable.Variable ) error {
   if err != nil {
     return err //TODO Find way to append current line to error
   }
-  fmt.Println(evaluated_expression.ToString())
+  output_str, err := evaluated_expression.ToString()
+  if err != nil {
+    return err  // TODO see above
+  }
+  fmt.Println(output_str)
   return nil
 }

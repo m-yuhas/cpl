@@ -9,8 +9,6 @@ multiline
 comment
 结束注释
 
-函数付要一、而
-一=而
-结束函数
-
-东西=3
+输出（“你好世界！”）
+输出（“line1#换行line2”）
+输出（“Let#'s try escape codes: ## #" #'”）
