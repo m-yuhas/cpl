@@ -4,7 +4,7 @@ import (
   "cpl/variable"
   "strconv"
   "strings"
-  "fmt"
+  //"fmt"
 )
 
 type OpType int
@@ -144,7 +144,7 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
       }
     }
   }
-  fmt.Println(expression)
+  //fmt.Println(expression)
   if orIndex != -1 {
     part1, err := AlgebraicParser(string(expression_arr[:equIndex]),variableMap)
     if err != nil {
@@ -348,7 +348,6 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   } else if expression_arr[0] == '(' && expression_arr[len(expression_arr)-1] == ')' {
     return AlgebraicParser(string(expression_arr[1:len(expression_arr)-1]),variableMap)
   } else if (expression_arr[0] == '"' || expression_arr[0] == '\'' || expression_arr[0] == '”' || expression_arr[0] == '“' || expression_arr[0] == '‘' || expression_arr[0] == '’') &&  (expression_arr[len(expression_arr)-1] == '"' || expression_arr[len(expression_arr)-1] == '\'' || expression_arr[len(expression_arr)-1] == '”' || expression_arr[len(expression_arr)-1] == '“' || expression_arr[len(expression_arr)-1] == '‘' || expression_arr[len(expression_arr)-1] == '’') {
-    fmt.Println(string(expression_arr[1:len(expression_arr)-1]))
     return StringParser(string(expression_arr[1:len(expression_arr)-1]))
   } else {
     return EvaluateAtom(string(expression_arr),variableMap)

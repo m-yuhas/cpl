@@ -127,8 +127,8 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
     case 2:
       returnVar.TypeCode = 4
       var s_arr []string
-      s_arr[0] = v.StringVal
-      s_arr[1] = strconv.FormatInt(addend.IntVal, 10)
+      s_arr = append(s_arr,v.StringVal)
+      s_arr = append(s_arr,strconv.FormatInt(addend.IntVal, 10))
       returnVar.StringVal = strings.Join(s_arr,"")
       return returnVar, nil
     case 3:

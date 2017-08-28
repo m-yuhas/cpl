@@ -11,182 +11,44 @@ import (
 )
 
 func ParseScript( script []string, workspace []map[string]variable.Variable ) ([]map[string]variable.Variable, error) {
-  iflevel := 0
   index := 0
   localWorkspace := map[string]variable.Variable{}
   workspace = append(workspace,localWorkspace)
   for index < len(script) {
     if strings.HasPrefix(script[index],"输出") {
-      Output(script[index],workspace)
+      err := Output(script[index],workspace)
+      if err != nil {
+        return workspace, err
+      }
     } else if strings.HasPrefix(script[index],"如果") {
-      text := strings.TrimPrefix(script[index],"如果")
-      trueFalse, err := BooleanParser(text,workspace)
+      gap, workspace, err := If(script[index:],workspace)
       if err != nil {
-        fmt.Println(err)
+        return workspace, err
       }
-      iflevel++
-      starting_iflevel := iflevel
-      if !trueFalse.BoolVal {
-        index++
-        for index < len(script) {
-          if strings.HasPrefix(script[index],"如果") {
-            iflevel++
-          } else if strings.HasPrefix(script[index],"否则") && iflevel == starting_iflevel {
-            break
-          } else if strings.HasPrefix(script[index],"结束支") {
-            iflevel--
-          }
-          if iflevel == starting_iflevel - 1 {
-            break
-          }
-          index++
-        }
-      }
+      index+=gap
     } else if strings.HasPrefix(script[index],"否则") {
-      if iflevel < 0 {
-        fmt.Println("ERROR 否则")
-        os.Exit(1)
-      }
-      index++
-      starting_iflevel := iflevel
-      for index < len(script) {
-        if strings.HasPrefix(script[index],"如果") {
-          iflevel++
-        } else if strings.HasPrefix(script[index],"结束支") {
-          iflevel--
-        }
-        if iflevel == starting_iflevel - 1 {
-          break
-        }
-        index++
-      }
-    } else if strings.HasPrefix(script[index],"结束支") {
-      if iflevel < 0 {
-        fmt.Println("ERROR 否则")
-        os.Exit(1)
-      }
-    } else if strings.HasPrefix(script[index],"从") {
-      //TODO: Check for nested loops
-      expression := strings.TrimPrefix(script[index],"从")
-      expressionArray := strings.Split(expression,"直到")
-      initCondArray := strings.Split(expressionArray[0],"=")
-      initCondArray[0] = strings.TrimSpace(initCondArray[0])
-      initCondArray[1] = strings.TrimSpace(initCondArray[1])
-      var pos2 int
-      for pos, vmap := range workspace {
-        if _, exists := vmap[initCondArray[0]]; exists {
-          var err error
-          vmap[initCondArray[0]], err = AlgebraicParser(initCondArray[1],workspace)
-          if err != nil {
-            fmt.Println(err)
-          }
-          pos2=pos
-          break
-        }
-      }
-      var loopContents []string
-      index++
-      for index < len(script) {
-        if strings.HasPrefix(script[index],"结束圈") {
-          break
-        }
-        loopContents = append(loopContents,script[index])
-        index++
-      }
-      var1 := workspace[pos2][initCondArray[0]]
-      temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),workspace)
-      if err != nil {
-        fmt.Println(err)
-      }
-      eval, err := var1.Eq(temp0)
-      if err != nil {
-        fmt.Println(err)
-      }
-      for !eval.BoolVal {
-        //fmt.Println(variableMap)
-        //fmt.Println(variableMap[pos2][initCondArray[0]].IntVal)
-        //fmt.Println("HERE")
-        workspace, _ = ParseScript(loopContents,workspace)
-        //fmt.Println()
-        var1 = workspace[pos2][initCondArray[0]]
-
-        temp0, err := AlgebraicParser(strings.TrimSpace(expressionArray[1]),workspace)
-        if err != nil {
-          fmt.Println(err)
-        }
-        eval, err = var1.Eq(temp0)
-        if err != nil {
-          fmt.Println(err)
-        }
-      }
-      //index++
+      return workspace, errors.New("This can't get used here")
+    } else if strings.HasPrefix(script[index],"结束分支") {
+      return workspace, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"当") {
-      expression := strings.TrimPrefix(script[index],"当")
-      expression = strings.TrimSpace(expression)
-      var loopContents []string
-      index++
-      for index < len(script) {
-        if strings.HasPrefix(script[index],"结束圈") {
-          break
-        }
-        loopContents = append(loopContents,script[index])
-        index++
-      }
-      var1, err := BooleanParser(expression,workspace)
+      _, workspace, err := While(index,script,workspace)
       if err != nil {
-        fmt.Println(err)
+        return workspace, err
       }
-      for var1.BoolVal {
-        workspace, _ = ParseScript(loopContents,workspace)
-        var1, err = BooleanParser(expression,workspace)
-      }
-      //fmt.Println("while loop")
-    } else if strings.HasPrefix(script[index],"结束圈") {
-      fmt.Println("end loop")
+    } else if strings.HasPrefix(script[index],"结束循环") {
+      return workspace, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"跳出") {
-      fmt.Println("break")
-    } else if strings.HasPrefix(script[index],"函数") {
-      fmt.Println("function")
-    } else if strings.HasPrefix(script[index],"结束函数") {
-      fmt.Println("end function")
+      if len(workspace) > 1 {
+        return workspace, errors.New("This can't get used here")
+      }
+      return workspace, nil
     } else if strings.HasPrefix(script[index],"离去") {
       os.Exit(1)
-    } else if strings.Contains(script[index],"=") {
-      expressionArray := strings.SplitN(script[index],"=",-1)
-      if len(expressionArray) > 2 {
-        fmt.Println("ERROR too many =")
-        continue
-      }
-      expressionArray[0] = strings.TrimSpace(expressionArray[0])
-      expressionArray[1] = strings.TrimSpace(expressionArray[1])
-      if strings.Contains(expressionArray[0],"?/\\][{}()*&^%$#@!~`]") {
-        fmt.Println("ERROR invalid character")
-      }
-      modified := false
-      for _, vmap := range workspace {
-        if _, exists := vmap[expressionArray[0]]; exists {
-          var err error
-          vmap[expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],workspace)
-          if err != nil {
-            fmt.Println(err)
-          }
-          modified = true
-          break
-        }
-      }
-      if !modified {
-        var err error
-        workspace[len(workspace)-1][expressionArray[0]], err = AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],workspace)
-        if err != nil {
-          fmt.Println(err)
-        }
-        //fmt.Println("Setting "+expressionArray[0]+"to"+string(AlgebraicParser(strings.SplitN(script[index],"=",-1)[1],variableMap).IntVal))
-      }
     } else {
-/*
-      tmp := variable.Variable{}
-      tmp = AlgebraicParser(script[index])
-      fmt.Println(tmp.IntVal)*/
+      workspace, err := StoreVariable(script[index],workspace)
+      if err != nil {
+        return workspace, err
+      }
     }
     index++
   }
@@ -210,4 +72,153 @@ func Output( text string, workspace []map[string]variable.Variable ) error {
   }
   fmt.Println(output_str)
   return nil
+}
+
+func If( script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
+  iflevel := 0
+  var case_arr []bool
+  var codelet_arr [][]string
+  var codelet []string
+  text_to_parse := strings.TrimPrefix(script[0],"如果")
+  evaluated_expression, err := AlgebraicParser(text_to_parse,workspace)
+  if err != nil || evaluated_expression.TypeCode != 1 {
+    return 0, workspace, err
+  }
+  case_arr = append(case_arr,evaluated_expression.BoolVal)
+  var index int
+  for index = 0; index < len(script); index++ {
+    if strings.HasPrefix(script[index],"如果") {
+      iflevel++
+      continue
+    } else if strings.HasPrefix(script[index],"结束分支") {
+      iflevel--
+      continue
+    } else if strings.HasPrefix(script[index],"否则如果") && iflevel == 1 {
+      text_to_parse = strings.TrimPrefix(script[index],"否则如果")
+      evaluated_expression, err = AlgebraicParser(text_to_parse,workspace)
+      if err != nil || evaluated_expression.TypeCode != 1 {
+        return 0, workspace, err
+      }
+      case_arr = append(case_arr,evaluated_expression.BoolVal)
+      codelet_arr = append(codelet_arr,codelet)
+      codelet = nil
+      continue
+    } else if strings.HasPrefix(script[index],"否则") && iflevel == 1 {
+      case_arr = append(case_arr,true)
+      codelet_arr = append(codelet_arr,codelet)
+      codelet = nil
+      continue
+    } else if iflevel == 0 {
+      break
+    }
+    codelet = append(codelet,script[index])
+  }
+  codelet_arr = append(codelet_arr,codelet)
+  if iflevel != 0 {
+    return 0, workspace, err
+  }
+  for i := 0; i < len(case_arr); i++ {
+    if case_arr[i] {
+      workspace, err := ParseScript( codelet_arr[i], workspace )
+      return index, workspace, err
+      break
+    }
+  }
+  return index, workspace, err
+}
+
+func While( line int, script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
+  expression := strings.TrimPrefix(script[line],"当")
+  var loopContents []string
+  line++
+  loopCount := 0
+  for line < len(script) {
+    if strings.HasPrefix(script[line],"当") || strings.HasPrefix(script[line],"从") {
+      loopCount++
+    }
+    if strings.HasPrefix(script[line],"结束循环") {
+      loopCount--
+    }
+    if loopCount < 0 {
+      break
+    }
+    loopContents = append(loopContents,script[line])
+    line++
+  }
+  trueFalse, err := AlgebraicParser(expression,workspace)
+  if err != nil {
+    return  0, workspace, err
+  }
+  if trueFalse.TypeCode != 1 {
+    return 0, workspace, errors.New("Invalid Expression")
+  }
+  for trueFalse.BoolVal {
+    workspace, err = ParseScript(loopContents,workspace)
+    if err != nil {
+      return loopCount, workspace, err
+    }
+    trueFalse, err = AlgebraicParser(expression,workspace)
+    if err != nil {
+      return  0, workspace, err
+    }
+    if trueFalse.TypeCode != 1 {
+      return 0, workspace, errors.New("Invalid Expression")
+    }
+  }
+  return line, workspace, nil
+}
+
+func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
+  text_arr := []rune(text)
+  in_quotes := false
+  for i := 0; i < len(text_arr); i++ {
+    if text_arr[i] == '"' || text_arr[i] == '\'' || text_arr[i] == '”' || text_arr[i] == '“' || text_arr[i] == '‘' || text_arr[i] == '’' {
+      in_quotes = !in_quotes
+    } else if in_quotes && text_arr[i] == '#' {
+      i++
+    } else if !in_quotes && text_arr[i] == '《' {
+      place_to_store := string(text_arr[:i])
+      expression := string(text_arr[i+1:])
+      if strings.Contains(place_to_store,"+!@#$%^&*()_-=][{}|/?><.,") {
+        return workspace, errors.New("Invalid Variable Name")
+      }
+      temp, err := AlgebraicParser(expression,workspace)
+      if err != nil {
+        return workspace, nil
+      }
+      found_var_name := false
+      for _, vmap := range workspace {
+        if _, exists := vmap[place_to_store]; exists {
+          vmap[place_to_store] = temp
+          found_var_name = true
+          break
+        }
+      }
+      if !found_var_name {
+        workspace[len(workspace)-1][place_to_store] = temp
+      }
+    } else if !in_quotes && text_arr[i] == '》' {
+      place_to_store := string(text_arr[i+1:])
+      expression := string(text_arr[:i])
+      if strings.Contains(place_to_store,"+`!@#$%^&*()_-=][{}|/?><.,\\\"'") {
+        return workspace, errors.New("Invalid Variable Name")
+      }
+      temp, err := AlgebraicParser(expression,workspace)
+      if err != nil {
+        return workspace, nil
+      }
+      found_var_name := false
+      for _, vmap := range workspace {
+        if _, exists := vmap[place_to_store]; exists {
+          vmap[place_to_store] = temp
+          found_var_name = true
+          break
+        }
+      }
+      if !found_var_name {
+        workspace[len(workspace)-1][place_to_store] = temp
+      }
+    }
+  }
+  return workspace, nil
 }

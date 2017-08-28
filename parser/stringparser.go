@@ -20,9 +20,9 @@ func StringParser( expression string ) ( variable.Variable, error ) {
         return returnVar, errors.New("Fill in Later")
       }
       i++
-      if expression_arr[i] == '#' || expression_arr[i] == '"' || expression_arr[i] == '\'' || expression_arr[i] == '”' || expression_arr[i] == '“' || expression_arr[i] == '‘' || expression_arr[i] == '’'{
+      if expression_arr[i] == '#' || expression_arr[i] == '"' || expression_arr[i] == '\'' || expression_arr[i] == '”' || expression_arr[i] == '“' || expression_arr[i] == '‘' || expression_arr[i] == '’' {
         output_arr = append(output_arr,expression_arr[i])
-      } else if expression_arr[i] == '换' && i >= len(expression_arr) {
+      } else if expression_arr[i] == '换' && i <= len(expression_arr) {
         i++
         if expression_arr[i] == '行' {
           output_arr = append(output_arr,'\n')
