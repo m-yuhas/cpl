@@ -23,18 +23,23 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
     } else if strings.HasPrefix(script[index],"如果") {
       gap, workspace, err := If(script[index:],workspace)
       if err != nil {
+        fmt.Println("ERROR FROM IF STATEMENT")
         return workspace, err
       }
+      //fmt.Println(gap+1)
       index+=gap
     } else if strings.HasPrefix(script[index],"否则") {
+      fmt.Println("ERROR FROM ELSE STATEMENT")
       return workspace, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"结束分支") {
+      fmt.Println("ERROR FROM END STATEMENT")
       return workspace, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"当") {
-      _, workspace, err := While(index,script,workspace)
+      gap, workspace, err := While(script[index:],workspace)
       if err != nil {
         return workspace, err
       }
+      index+=gap+1
     } else if strings.HasPrefix(script[index],"结束循环") {
       return workspace, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"跳出") {
@@ -75,7 +80,7 @@ func Output( text string, workspace []map[string]variable.Variable ) error {
 }
 
 func If( script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
-  iflevel := 0
+  iflevel := 1
   var case_arr []bool
   var codelet_arr [][]string
   var codelet []string
@@ -86,13 +91,11 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, []map
   }
   case_arr = append(case_arr,evaluated_expression.BoolVal)
   var index int
-  for index = 0; index < len(script); index++ {
+  for index = 1; index < len(script); index++ {
     if strings.HasPrefix(script[index],"如果") {
       iflevel++
-      continue
     } else if strings.HasPrefix(script[index],"结束分支") {
       iflevel--
-      continue
     } else if strings.HasPrefix(script[index],"否则如果") && iflevel == 1 {
       text_to_parse = strings.TrimPrefix(script[index],"否则如果")
       evaluated_expression, err = AlgebraicParser(text_to_parse,workspace)
@@ -108,7 +111,8 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, []map
       codelet_arr = append(codelet_arr,codelet)
       codelet = nil
       continue
-    } else if iflevel == 0 {
+    }
+    if iflevel == 0 {
       break
     }
     codelet = append(codelet,script[index])
@@ -127,45 +131,47 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, []map
   return index, workspace, err
 }
 
-func While( line int, script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
-  expression := strings.TrimPrefix(script[line],"当")
-  var loopContents []string
-  line++
-  loopCount := 0
-  for line < len(script) {
-    if strings.HasPrefix(script[line],"当") || strings.HasPrefix(script[line],"从") {
-      loopCount++
+func While( script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
+  expression := strings.TrimPrefix(script[0],"当")
+  var loop_contents []string
+  loop_count := 1
+  var index int
+  for index = 1; index < len(script); index++ {
+    if strings.HasPrefix(script[index],"当") {
+      loop_count++
     }
-    if strings.HasPrefix(script[line],"结束循环") {
-      loopCount--
+    if strings.HasPrefix(script[index],"结束循环") {
+      loop_count--
     }
-    if loopCount < 0 {
+    if loop_count <= 0 {
       break
     }
-    loopContents = append(loopContents,script[line])
-    line++
+    loop_contents = append(loop_contents,script[index])
   }
-  trueFalse, err := AlgebraicParser(expression,workspace)
+  if loop_count > 0 {
+    return 0, workspace, errors.New("No end loop")
+  }
+  true_false, err := AlgebraicParser(expression,workspace)
   if err != nil {
     return  0, workspace, err
   }
-  if trueFalse.TypeCode != 1 {
-    return 0, workspace, errors.New("Invalid Expression")
+  if true_false.TypeCode != 1 {
+    return 0, workspace, errors.New("Invalid Expression (Must Evaluate to Boolean)")
   }
-  for trueFalse.BoolVal {
-    workspace, err = ParseScript(loopContents,workspace)
+  for true_false.BoolVal {
+    workspace, err = ParseScript(loop_contents,workspace)
     if err != nil {
-      return loopCount, workspace, err
+      return loop_count, workspace, err
     }
-    trueFalse, err = AlgebraicParser(expression,workspace)
+    true_false, err = AlgebraicParser(expression,workspace)
     if err != nil {
       return  0, workspace, err
     }
-    if trueFalse.TypeCode != 1 {
+    if true_false.TypeCode != 1 {
       return 0, workspace, errors.New("Invalid Expression")
     }
   }
-  return line, workspace, nil
+  return len(loop_contents), workspace, nil
 }
 
 func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
