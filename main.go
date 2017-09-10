@@ -189,7 +189,10 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
       if len(name_and_args) > 2 {
         return str_arr, workspace, errors.New(messages.InvalidFunctionDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
-      arg_list := strings.Split(name_and_args[1],string(',')) //TODO make this work with the other kind of comma
+      var arg_list []string
+      if len(name_and_args) > 1 {
+        arg_list = strings.FieldsFunc(name_and_args[1],SplitByCommas) //TODO make this work with the other kind of comma
+      }
       new_function := variable.Variable{}
       new_function.TypeCode = 10
       i++
@@ -267,4 +270,8 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
     }
   }
   return str_arr, workspace, nil
+}
+
+func SplitByCommas( r rune ) bool {
+  return r == ',' || r == '、'
 }

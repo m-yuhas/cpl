@@ -4,7 +4,7 @@ import (
   "cpl/variable"
   "strconv"
   "strings"
-  //"fmt"
+  "errors"
 )
 
 type OpType int
@@ -357,6 +357,47 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
 
 func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) (variable.Variable, error)  {
   returnVar := variable.Variable{}
+  if strings.HasSuffix(expression,")") || strings.HasSuffix(expression,"）") {
+    expr_arr := []rune(expression)
+    var name []rune
+    var i int
+    for i = 0; i < len(expr_arr); i++ {
+      if expr_arr[i] == '(' || expr_arr[i] == '（' {
+        break
+      } else {
+        name = append(name,expr_arr[i])
+      }
+    }
+    if i >= len(expr_arr) {
+      return returnVar, errors.New("Improperly Formed Function Call")
+    }
+    expr_arr = expr_arr[i+1:len(expr_arr)-1]
+    arg_arr := strings.FieldsFunc(string(expr_arr),SplitByCommas)
+    for _, vmap := range variableMap {
+      if val, exists := vmap[string(name)]; exists {
+        if val.TypeCode == 10 {
+          workspace := []map[string]variable.Variable{}
+          workspace = append(workspace, map[string]variable.Variable{})
+          if len(arg_arr) != len(val.FuncArgs) {
+            return returnVar, errors.New("Incorrect Number of Args")
+          }
+          for j := 0; j < len(val.FuncArgs); j++ {
+            tempVar, err := AlgebraicParser(arg_arr[j],variableMap)
+            workspace[0][val.FuncArgs[j]] = tempVar
+            if err != nil {
+              return returnVar, errors.New("Errors evaluating function arg")
+            }
+          }
+          workspace, _, err := ParseScript(val.FuncVal,workspace)
+          if err != nil {
+            return returnVar, err
+          }
+          return workspace[0]["+返回价值"], nil
+        }
+      }
+    }
+    return returnVar, errors.New("Function Name Not Found")
+  }
   value, err := strconv.ParseInt(expression,10,64)
   if err != nil {
     value, err := strconv.ParseInt(expression,10,64)
@@ -368,7 +409,17 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
       } else {
         for _, vmap := range variableMap {
           if val, exists := vmap[expression]; exists {
-            return val, nil
+            if val.TypeCode == 10 {
+              workspace := []map[string]variable.Variable{}
+              workspace = append(workspace, map[string]variable.Variable{})
+              workspace, _, err := ParseScript(val.FuncVal,workspace)
+              if err != nil {
+                return returnVar, err
+              }
+              return workspace[0]["+返回价值"], nil
+            } else {
+              return val, nil
+            }
           }
         }
       }
@@ -380,4 +431,8 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
   returnVar.TypeCode = 2
   returnVar.IntVal = value
   return returnVar, nil
+}
+
+func SplitByCommas( r rune ) bool {
+  return r == ',' || r == '、'
 }

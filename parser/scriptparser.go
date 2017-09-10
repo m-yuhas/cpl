@@ -38,7 +38,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
       fmt.Println("ERROR FROM END STATEMENT")
       return workspace, -1, errors.New("This can't get used here")
     } else if strings.HasPrefix(script[index],"当") {
-      gap, workspace, err := While(script[index:],workspace)
+      gap, status, workspace, err := While(script[index:],workspace)
       if err != nil {
         return workspace, -1, err
       }
@@ -59,7 +59,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
       }
       return workspace, 2, nil
     } else if strings.HasPrefix(script[index],"返回") {
-      if len(workspace) > 1 {
+      if len(workspace) <= 1 {
         return workspace, -1, errors.New("This can't get used here")
       }
       workspace, err := Return(script[index], workspace)
@@ -151,7 +151,7 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, int, 
   return index, 0, workspace, err
 }
 
-func While( script []string, workspace []map[string]variable.Variable ) (int, []map[string]variable.Variable, error) {
+func While( script []string, workspace []map[string]variable.Variable ) (int, int, []map[string]variable.Variable, error) {
   expression := strings.TrimPrefix(script[0],"当")
   var loop_contents []string
   loop_count := 1
@@ -169,35 +169,35 @@ func While( script []string, workspace []map[string]variable.Variable ) (int, []
     loop_contents = append(loop_contents,script[index])
   }
   if loop_count > 0 {
-    return 0, workspace, errors.New("No end loop")
+    return 0, 0, workspace, errors.New("No end loop")
   }
   true_false, err := AlgebraicParser(expression,workspace)
   if err != nil {
-    return  0, workspace, err
+    return  0, 0, workspace, err
   }
   if true_false.TypeCode != 1 {
-    return 0, workspace, errors.New("Invalid Expression (Must Evaluate to Boolean)")
+    return 0, 0, workspace, errors.New("Invalid Expression (Must Evaluate to Boolean)")
   }
   for true_false.BoolVal {
-    workspace, status, err = ParseScript(loop_contents,workspace)
+    workspace, status, err := ParseScript(loop_contents,workspace)
     if err != nil {
-      return loop_count, workspace, err
+      return loop_count, 0, workspace, err
     }
     if status == 1 {
-      return loop_count, workspace, nil
+      return loop_count, 1, workspace, nil
     }
     if status == 3 {
-      return loop_count, workspace, nil
+      return loop_count, 3, workspace, nil
     }
     true_false, err = AlgebraicParser(expression,workspace)
     if err != nil {
-      return  0, workspace, err
+      return  0, 0, workspace, err
     }
     if true_false.TypeCode != 1 {
-      return 0, workspace, errors.New("Invalid Expression")
+      return 0, 0, workspace, errors.New("Invalid Expression")
     }
   }
-  return len(loop_contents), workspace, nil
+  return len(loop_contents), 0, workspace, nil
 }
 
 func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
@@ -255,7 +255,12 @@ func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map
   return workspace, nil
 }
 
-func Return(text string, workspace []map[string]variable.Variable) (variable.Variable, error) {
+func Return(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
   expression := strings.TrimPrefix(text,"返回")
-  return AlgebraicParser(expression, workspace)
+  variable, err := AlgebraicParser(expression, workspace)
+  if err != nil {
+    return workspace, err
+  }
+  workspace[0]["+返回价值"] = variable
+  return workspace, nil
 }
