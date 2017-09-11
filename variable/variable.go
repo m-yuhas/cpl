@@ -4,6 +4,7 @@ import (
   "errors"
   "strings"
   "strconv"
+  "math"
 )
 
 type Variable struct {
@@ -99,7 +100,11 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       return returnVar, nil
     case 2:
       returnVar.TypeCode = 3
-      returnVar.FloatVal = v.FloatVal + float64(addend.FloatVal)
+      returnVar.FloatVal = v.FloatVal + float64(addend.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal + addend.FloatVal
       return returnVar, nil
     case 4:
       returnVar.TypeCode = 4
@@ -135,7 +140,7 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
       returnVar.TypeCode = 4
       var s_arr []string
       s_arr[0] = v.StringVal
-      s_arr[1] = strconv.FormatFloat(v.FloatVal,'f',-1,64)
+      s_arr[1] = strconv.FormatFloat(addend.FloatVal,'f',-1,64)
       returnVar.StringVal = strings.Join(s_arr,"")
       return returnVar, nil
     case 4:
@@ -152,90 +157,984 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
 
 func (v *Variable) Sub(subtrahend Variable) (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal-subtrahend.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch subtrahend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 2:
+      returnVar.TypeCode = 2
+      if v.BoolVal {
+        returnVar.IntVal = 1 - subtrahend.IntVal
+      } else {
+        returnVar.IntVal = 0 - subtrahend.IntVal
+      }
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      if v.BoolVal {
+        returnVar.FloatVal = 1 - subtrahend.FloatVal
+      } else {
+        returnVar.FloatVal = 0 - subtrahend.FloatVal
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch subtrahend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 2
+      if subtrahend.BoolVal {
+        returnVar.IntVal = v.IntVal - 1
+      } else {
+        returnVar.IntVal = v.IntVal
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      returnVar.IntVal = v.IntVal - subtrahend.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = float64(v.IntVal) - subtrahend.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch subtrahend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 3
+      if subtrahend.BoolVal {
+        returnVar.FloatVal = 1 - v.FloatVal
+      } else {
+        returnVar.FloatVal = 0 - v.FloatVal
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal - float64(subtrahend.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal - subtrahend.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    switch subtrahend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 4
+      if subtrahend.BoolVal {
+        returnVar.StringVal = strings.Replace(v.StringVal,"真","",-1)
+      } else {
+        returnVar.StringVal = strings.Replace(v.StringVal,"假","",-1)
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 4
+      returnVar.StringVal = strings.Replace(v.StringVal,strconv.FormatInt(subtrahend.IntVal, 10),"",-1)
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 4
+      returnVar.StringVal = strings.Replace(v.StringVal,strconv.FormatFloat(subtrahend.FloatVal,'f',-1,64),"",-1)
+      return returnVar, nil
+    case 4:
+      returnVar.TypeCode = 4
+      returnVar.StringVal = strings.Replace(v.StringVal,subtrahend.StringVal,"",-1)
+      return returnVar, nil
+    }
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Mul(factor Variable) (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal*factor.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch factor.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 1
+      returnVar.BoolVal = v.BoolVal && factor.BoolVal
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      if v.BoolVal {
+        returnVar.IntVal = factor.IntVal
+      } else {
+        returnVar.IntVal = 0
+      }
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      if v.BoolVal {
+        returnVar.FloatVal = factor.FloatVal
+      } else {
+        returnVar.FloatVal = 0
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch factor.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 2
+      if factor.BoolVal {
+        returnVar.IntVal = v.IntVal
+      } else {
+        returnVar.IntVal = 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      returnVar.IntVal = v.IntVal * factor.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = float64(v.IntVal) * factor.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch factor.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 3
+      if factor.BoolVal {
+        returnVar.FloatVal = v.FloatVal
+      } else {
+        returnVar.FloatVal = 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal * float64(factor.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal * factor.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Div(dividend Variable) (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal/dividend.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 2:
+      returnVar.TypeCode = 2
+      if v.BoolVal {
+        returnVar.IntVal = 1 / dividend.IntVal
+      } else {
+        returnVar.IntVal = 0
+      }
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      if v.BoolVal {
+        returnVar.FloatVal = 1 / dividend.FloatVal
+      } else {
+        returnVar.FloatVal = 0
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 2
+      if dividend.BoolVal {
+        returnVar.IntVal = v.IntVal
+      } else {
+        return returnVar, errors.New("Divide by Zero Error")
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      returnVar.IntVal = v.IntVal / dividend.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = float64(v.IntVal) / dividend.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 3
+      if dividend.BoolVal {
+        returnVar.FloatVal = v.FloatVal
+      } else {
+        return returnVar, errors.New("Error Divide By Zero")
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal / float64(dividend.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = v.FloatVal / dividend.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Mod(dividend Variable) (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal%dividend.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 2:
+      returnVar.TypeCode = 2
+      if v.BoolVal {
+        returnVar.IntVal = 1 % dividend.IntVal
+      } else {
+        returnVar.IntVal = 0
+      }
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      if v.BoolVal {
+        returnVar.FloatVal = math.Mod(1.0,dividend.FloatVal)
+      } else {
+        returnVar.FloatVal = 0
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 2
+      if dividend.BoolVal {
+        returnVar.IntVal = 0
+      } else {
+        return returnVar, errors.New("Divide by Zero Error")
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      returnVar.IntVal = v.IntVal % dividend.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Mod(float64(v.IntVal),dividend.FloatVal)
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch dividend.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 3
+      if dividend.BoolVal {
+        returnVar.FloatVal = 0
+      } else {
+        return returnVar, errors.New("Error Divide By Zero")
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Mod(v.FloatVal,float64(dividend.IntVal))
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Mod(v.FloatVal,dividend.FloatVal)
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Exp(exponent Variable) (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal^exponent.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch exponent.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 1
+      returnVar.BoolVal = v.BoolVal != exponent.BoolVal
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 2:
+      returnVar.TypeCode = 2
+      if v.BoolVal {
+        returnVar.IntVal = 1
+      } else {
+        returnVar.IntVal = 0
+      }
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      if v.BoolVal {
+        returnVar.FloatVal = 1
+      } else {
+        returnVar.FloatVal = 0
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch exponent.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 2
+      if exponent.BoolVal {
+        returnVar.IntVal = v.IntVal
+      } else {
+        returnVar.IntVal = 1
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 2
+      returnVar.IntVal = int64(math.Pow(float64(v.IntVal),float64(exponent.IntVal)))
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Pow(float64(v.IntVal),exponent.FloatVal)
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch exponent.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.TypeCode = 3
+      if exponent.BoolVal {
+        returnVar.FloatVal = v.FloatVal
+      } else {
+        returnVar.FloatVal = 1
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Pow(v.FloatVal,float64(exponent.FloatVal))
+      return returnVar, nil
+    case 3:
+      returnVar.TypeCode = 3
+      returnVar.FloatVal = math.Pow(v.FloatVal,exponent.FloatVal)
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Fac() (Variable, error) {
   returnVar := Variable{}
-  returnVar.TypeCode = 2
-  returnVar.IntVal = v.IntVal
-  return returnVar, nil
+  if v.TypeCode == 2 {
+    returnVar.TypeCode = 2
+    returnVal := int64(1)
+    for i := v.IntVal; i > 1; i++ {
+      returnVal = returnVal * i
+    }
+    returnVar.IntVal = returnVal
+    return returnVar, nil
+  }
+  return returnVar, errors.New("Can only do factorial on integer")
 }
 
 func (v *Variable) Eq(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal == operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.BoolVal = v.BoolVal == operand.BoolVal
+        return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = operand.IntVal == 1
+      } else {
+        returnVar.BoolVal = operand.IntVal == 0
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = math.Abs(operand.FloatVal - 1) < 0.000001
+      } else {
+        returnVar.BoolVal = math.Abs(operand.FloatVal) < 0.000001
+      }
+      return returnVar, nil
+    case 4:
+      if v.BoolVal {
+        returnVar.BoolVal = operand.StringVal == "真"
+      } else {
+        returnVar.BoolVal = operand.StringVal == "假"
+      }
+      return returnVar, nil
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal == 1
+      } else {
+        returnVar.BoolVal = v.IntVal == 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal == operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = math.Abs(float64(v.IntVal) - operand.FloatVal) < 0.000001
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = strconv.FormatInt(v.IntVal, 10) == operand.StringVal
+      return returnVar, nil
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = math.Abs(v.FloatVal - 1) < 0.000001
+      } else {
+        returnVar.BoolVal = math.Abs(v.FloatVal) < 0.000001
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = math.Abs(v.FloatVal - float64(operand.IntVal)) < 0.000001
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = math.Abs(v.FloatVal - operand.FloatVal) < 0.000001
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = strconv.FormatFloat(v.FloatVal,'f',-1,64) == operand.StringVal
+      return returnVar, nil
+    }
+  case 4:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.StringVal == "真"
+      } else {
+        returnVar.BoolVal = v.StringVal == "假"
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = strconv.FormatInt(operand.IntVal, 10) == v.StringVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = strconv.FormatFloat(operand.FloatVal,'f',-1,64) == v.StringVal
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = v.StringVal == operand.StringVal
+      return returnVar, nil
+    }
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Neq(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal != operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      returnVar.BoolVal = v.BoolVal != operand.BoolVal
+        return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = operand.IntVal != 1
+      } else {
+        returnVar.BoolVal = operand.IntVal != 0
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = math.Abs(operand.FloatVal - 1) > 0.000001
+      } else {
+        returnVar.BoolVal = math.Abs(operand.FloatVal) > 0.000001
+      }
+      return returnVar, nil
+    case 4:
+      if v.BoolVal {
+        returnVar.BoolVal = operand.StringVal != "真"
+      } else {
+        returnVar.BoolVal = operand.StringVal != "假"
+      }
+      return returnVar, nil
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal != 1
+      } else {
+        returnVar.BoolVal = v.IntVal != 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal != operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = math.Abs(float64(v.IntVal) - operand.FloatVal) > 0.000001
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = strconv.FormatInt(v.IntVal, 10) != operand.StringVal
+      return returnVar, nil
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = math.Abs(v.FloatVal - 1) > 0.000001
+      } else {
+        returnVar.BoolVal = math.Abs(v.FloatVal) > 0.000001
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = math.Abs(v.FloatVal - float64(operand.IntVal)) > 0.000001
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = math.Abs(v.FloatVal - operand.FloatVal) > 0.000001
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = strconv.FormatFloat(v.FloatVal,'f',-1,64) != operand.StringVal
+      return returnVar, nil
+    }
+  case 4:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.StringVal != "真"
+      } else {
+        returnVar.BoolVal = v.StringVal != "假"
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = strconv.FormatInt(operand.IntVal, 10) != v.StringVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = strconv.FormatFloat(operand.FloatVal,'f',-1,64) != v.StringVal
+      return returnVar, nil
+    case 4:
+      returnVar.BoolVal = v.StringVal != operand.StringVal
+      return returnVar, nil
+    }
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Lt(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal < operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if v.BoolVal == false && operand.BoolVal == true {
+        returnVar.BoolVal = true
+      } else {
+        returnVar.BoolVal = false
+      }
+      return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = operand.IntVal > 1
+      } else {
+        returnVar.BoolVal = operand.IntVal > 0
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 < operand.FloatVal
+      } else {
+        returnVar.BoolVal = 0 < operand.FloatVal
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal < 1
+      } else {
+        returnVar.BoolVal = v.IntVal < 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal < operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = float64(v.IntVal) < operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.FloatVal < 1
+      } else {
+        returnVar.BoolVal = v.FloatVal < 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.FloatVal < float64(operand.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = v.FloatVal < operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Lte(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal <= operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if v.BoolVal == false {
+        returnVar.BoolVal = true
+      } else {
+        returnVar.BoolVal = false
+      }
+      return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 <= operand.IntVal
+      } else {
+        returnVar.BoolVal = 0 <= operand.IntVal
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 <= operand.FloatVal
+      } else {
+        returnVar.BoolVal = 0 <= operand.FloatVal
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal <= 1
+      } else {
+        returnVar.BoolVal = v.IntVal <= 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal <= operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = float64(v.IntVal) <= operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.FloatVal <= 1
+      } else {
+        returnVar.BoolVal = v.FloatVal <= 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.FloatVal <= float64(operand.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = v.FloatVal <= operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Gt(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal > operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if v.BoolVal == true && operand.BoolVal == false {
+        returnVar.BoolVal = true
+      } else {
+        returnVar.BoolVal = false
+      }
+      return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 > operand.IntVal
+      } else {
+        returnVar.BoolVal = 0 > operand.IntVal
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 > operand.FloatVal
+      } else {
+        returnVar.BoolVal = 0 > operand.FloatVal
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal > 1
+      } else {
+        returnVar.BoolVal = v.IntVal > 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal > operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = float64(v.IntVal) > operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.FloatVal > 1
+      } else {
+        returnVar.BoolVal = v.FloatVal > 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.FloatVal > float64(operand.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = v.FloatVal > operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) Gte(operand Variable) (Variable, error) {
   returnVar := Variable{}
   returnVar.TypeCode = 1
-  returnVar.BoolVal = v.IntVal >= operand.IntVal
-  return returnVar, nil
+  switch v.TypeCode {
+  case 0:
+    return returnVar, errors.New("错误：变量不无初始化")
+  case 1:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if v.BoolVal == true {
+        returnVar.BoolVal = true
+      } else {
+        returnVar.BoolVal = false
+      }
+      return returnVar, nil
+    case 2:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 >= operand.IntVal
+      } else {
+        returnVar.BoolVal = 0 >= operand.IntVal
+      }
+      return returnVar, nil
+    case 3:
+      if v.BoolVal {
+        returnVar.BoolVal = 1 >= operand.FloatVal
+      } else {
+        returnVar.BoolVal = 0 >= operand.FloatVal
+      }
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 2:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.IntVal >= 1
+      } else {
+        returnVar.BoolVal = v.IntVal >= 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.IntVal >= operand.IntVal
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = float64(v.IntVal) >= operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 3:
+    switch operand.TypeCode {
+    case 0:
+      return returnVar, errors.New("错误：变量不无初始化")
+    case 1:
+      if operand.BoolVal {
+        returnVar.BoolVal = v.FloatVal >= 1
+      } else {
+        returnVar.BoolVal = v.FloatVal >= 0
+      }
+      return returnVar, nil
+    case 2:
+      returnVar.BoolVal = v.FloatVal >= float64(operand.IntVal)
+      return returnVar, nil
+    case 3:
+      returnVar.BoolVal = v.FloatVal >= operand.FloatVal
+      return returnVar, nil
+    case 4:
+      return returnVar, errors.New("错误：变量不无初始化")
+    }
+  case 4:
+    return returnVar, errors.New("错误：变量不无初始化")
+  }
+  return returnVar, errors.New("错误：未知的错误")
 }
 
 func (v *Variable) And(operand Variable) (Variable, error) {
   returnVar := Variable{}
+  if v.TypeCode != 1 && operand.TypeCode != 1 {
+    return returnVar, errors.New("错误：未知的错误")
+  }
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal && operand.BoolVal
   return returnVar, nil
@@ -243,6 +1142,9 @@ func (v *Variable) And(operand Variable) (Variable, error) {
 
 func (v *Variable) Or(operand Variable) (Variable, error) {
   returnVar := Variable{}
+  if v.TypeCode != 1 && operand.TypeCode != 1 {
+    return returnVar, errors.New("错误：未知的错误")
+  }
   returnVar.TypeCode = 1
   returnVar.BoolVal = v.BoolVal || operand.BoolVal
   return returnVar, nil
@@ -250,6 +1152,9 @@ func (v *Variable) Or(operand Variable) (Variable, error) {
 
 func (v *Variable) Not() (Variable, error) {
   returnVar := Variable{}
+  if v.TypeCode != 1 {
+    return returnVar, errors.New("错误：未知的错误")
+  }
   returnVar.TypeCode = 1
   returnVar.BoolVal = !v.BoolVal
   return returnVar, nil
