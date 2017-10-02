@@ -1,13 +1,6 @@
-#!/bin/cpl
+#!/bin/baomao
 
 注释：This is a single line Comment
-
-注释：This
-is
-a
-multiline
-comment
-结束注释
 
 函数 副
   输出（“在函数里面”）
@@ -18,8 +11,14 @@ comment
   输出（“传参1=”+啊）
   输出（“传参2=”+呀）
   输出（“传参3=”+哟）
+  返回
 结束函数
 
+函数 这个
+     输出（“这个函数只有一处”）
+结束函数
+
+注释：This is a single line Comment
 
 输出（“你好世界！”）
 输出（“line1#换行line2”）
@@ -48,6 +47,11 @@ comment
   输出（“东西=”+东西）
 结束循环
 
+测试（1、2、3）
+
+这个（）
+
 输出（副）
-输出（“HERE”）
 输出（测试（1、2、3））
+输出（“HERE”）
+输出（“HERE Again”）

@@ -5,6 +5,7 @@ import (
   "strconv"
   "strings"
   "errors"
+  "fmt"
 )
 
 type OpType int
@@ -49,6 +50,11 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
   //currIndex := -1
   //inquotes := false
   expression_arr := []rune(expression)
+  if len(expression_arr) == 0 {
+    fmt.Println("Expression is Null")
+    returnVar := variable.Variable{}
+    return returnVar, errors.New("Expression is Null")
+  }
   for i := 0; i < len(expression_arr); i++ {
     if expression_arr[i] == '(' || expression_arr[i] == '（' {
       parenthCount += 1
@@ -375,7 +381,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
     arg_arr := strings.FieldsFunc(string(expr_arr),SplitByCommas)
     for _, vmap := range variableMap {
       if val, exists := vmap[string(name)]; exists {
-        if val.TypeCode == 10 {
+        if val.TypeCode == variable.FUNC {
           workspace := []map[string]variable.Variable{}
           workspace = append(workspace, map[string]variable.Variable{})
           if len(arg_arr) != len(val.FuncArgs) {
@@ -403,13 +409,13 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
     value, err := strconv.ParseInt(expression,10,64)
     if err != nil {
       if ( strings.HasPrefix(expression,"\"") || strings.HasPrefix(expression,"“") || strings.HasPrefix(expression,"”") ) && ( strings.HasSuffix(expression,"\"") || strings.HasSuffix(expression,"“") || strings.HasSuffix(expression,"”") ) {
-        returnVar.TypeCode = 4
+        returnVar.TypeCode = variable.STRING
         returnVar.StringVal = expression[1:len(expression)-1]
         return returnVar, nil
       } else {
         for _, vmap := range variableMap {
           if val, exists := vmap[expression]; exists {
-            if val.TypeCode == 10 {
+            if val.TypeCode == variable.FUNC {
               workspace := []map[string]variable.Variable{}
               workspace = append(workspace, map[string]variable.Variable{})
               workspace, _, err := ParseScript(val.FuncVal,workspace)
@@ -424,11 +430,11 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
         }
       }
     }
-    returnVar.TypeCode = 3
+    returnVar.TypeCode = variable.FLOAT
     returnVar.IntVal = value
     return returnVar, nil
   }
-  returnVar.TypeCode = 2
+  returnVar.TypeCode = variable.INT
   returnVar.IntVal = value
   return returnVar, nil
 }

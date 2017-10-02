@@ -32,7 +32,7 @@ func StringParser( expression string ) ( variable.Variable, error ) {
       output_arr = append(output_arr,expression_arr[i])
     }
   }
-  returnVar.TypeCode = 4
+  returnVar.TypeCode = variable.STRING
   returnVar.StringVal = string(output_arr)
   return returnVar, nil
 }

@@ -70,7 +70,7 @@ func ParseScript( script []string, workspace []map[string]variable.Variable ) ([
     } else if strings.HasPrefix(script[index],"离去") {
       os.Exit(1)
     } else {
-      workspace, err := StoreVariable(script[index],workspace)
+      workspace, err := EvaluateExpression(script[index],workspace)
       if err != nil {
         return workspace, -1, err
       }
@@ -106,7 +106,7 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, int, 
   var codelet []string
   text_to_parse := strings.TrimPrefix(script[0],"如果")
   evaluated_expression, err := AlgebraicParser(text_to_parse,workspace)
-  if err != nil || evaluated_expression.TypeCode != 1 {
+  if err != nil || evaluated_expression.TypeCode != variable.BOOL {
     return 0, -1, workspace, err
   }
   case_arr = append(case_arr,evaluated_expression.BoolVal)
@@ -119,7 +119,7 @@ func If( script []string, workspace []map[string]variable.Variable ) (int, int, 
     } else if strings.HasPrefix(script[index],"否则如果") && iflevel == 1 {
       text_to_parse = strings.TrimPrefix(script[index],"否则如果")
       evaluated_expression, err = AlgebraicParser(text_to_parse,workspace)
-      if err != nil || evaluated_expression.TypeCode != 1 {
+      if err != nil || evaluated_expression.TypeCode != variable.BOOL {
         return 0, -1, workspace, err
       }
       case_arr = append(case_arr,evaluated_expression.BoolVal)
@@ -175,7 +175,7 @@ func While( script []string, workspace []map[string]variable.Variable ) (int, in
   if err != nil {
     return  0, 0, workspace, err
   }
-  if true_false.TypeCode != 1 {
+  if true_false.TypeCode != variable.BOOL {
     return 0, 0, workspace, errors.New("Invalid Expression (Must Evaluate to Boolean)")
   }
   for true_false.BoolVal {
@@ -193,22 +193,24 @@ func While( script []string, workspace []map[string]variable.Variable ) (int, in
     if err != nil {
       return  0, 0, workspace, err
     }
-    if true_false.TypeCode != 1 {
+    if true_false.TypeCode != variable.BOOL {
       return 0, 0, workspace, errors.New("Invalid Expression")
     }
   }
   return len(loop_contents), 0, workspace, nil
 }
 
-func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
+func EvaluateExpression(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
   text_arr := []rune(text)
   in_quotes := false
+  storage_statement := false
   for i := 0; i < len(text_arr); i++ {
     if text_arr[i] == '"' || text_arr[i] == '\'' || text_arr[i] == '”' || text_arr[i] == '“' || text_arr[i] == '‘' || text_arr[i] == '’' {
       in_quotes = !in_quotes
     } else if in_quotes && text_arr[i] == '#' {
       i++
     } else if !in_quotes && text_arr[i] == '《' {
+      storage_statement = true
       place_to_store := string(text_arr[:i])
       expression := string(text_arr[i+1:])
       if strings.Contains(place_to_store,"+!@#$%^&*()_-=][{}|/?><.,") {
@@ -216,7 +218,7 @@ func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map
       }
       temp, err := AlgebraicParser(expression,workspace)
       if err != nil {
-        return workspace, nil
+        return workspace, err
       }
       found_var_name := false
       for _, vmap := range workspace {
@@ -230,6 +232,7 @@ func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map
         workspace[len(workspace)-1][place_to_store] = temp
       }
     } else if !in_quotes && text_arr[i] == '》' {
+      storage_statement = true
       place_to_store := string(text_arr[i+1:])
       expression := string(text_arr[:i])
       if strings.Contains(place_to_store,"+`!@#$%^&*()_-=][{}|/?><.,\\\"'") {
@@ -237,7 +240,7 @@ func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map
       }
       temp, err := AlgebraicParser(expression,workspace)
       if err != nil {
-        return workspace, nil
+        return workspace, err
       }
       found_var_name := false
       for _, vmap := range workspace {
@@ -252,11 +255,20 @@ func StoreVariable(text string, workspace []map[string]variable.Variable) ([]map
       }
     }
   }
+  if !storage_statement {
+    _, err := AlgebraicParser(text,workspace)
+    if err != nil {
+      return workspace, err
+    }
+  }
   return workspace, nil
 }
 
 func Return(text string, workspace []map[string]variable.Variable) ([]map[string]variable.Variable, error) {
   expression := strings.TrimPrefix(text,"返回")
+  if len(expression) == 0 {
+    return workspace, nil
+  }
   variable, err := AlgebraicParser(expression, workspace)
   if err != nil {
     return workspace, err

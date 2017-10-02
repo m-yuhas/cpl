@@ -194,7 +194,7 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
         arg_list = strings.FieldsFunc(name_and_args[1],SplitByCommas) //TODO make this work with the other kind of comma
       }
       new_function := variable.Variable{}
-      new_function.TypeCode = 10
+      new_function.TypeCode = variable.FUNC
       i++
       function_content := []string{}
       for i < len(str_arr) {
@@ -243,7 +243,7 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
         return str_arr, workspace, errors.New(messages.InvalidClassDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
       new_class := variable.Variable{}
-      new_class.TypeCode = 11
+      new_class.TypeCode = variable.CLASS
       i++
       class_content := []string{}
       for i < len(str_arr) {
