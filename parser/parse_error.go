@@ -7,9 +7,9 @@ type ParseError struct {
 }
 
 func (e *ParseError) Error() string {
-  return e.msg + "（句" + string(line_number) + "）\n";
+  return e.msg + "（句" + string(e.line_number) + "）\n";
 }
 
 func NewParseError( m string, ln int64, pe *ParseError) ParseError {
-  return ParseError{msg: m, line_number: ln, previous_error: &pe}
+  return ParseError{msg: m, line_number: ln, previous_error: pe}
 }
