@@ -40,35 +40,43 @@ func main() {
     fmt.Println(messages.CLIHeaderText)
     cli_main()
   } else {
+    fmt.Println("DEBUG: Started in Script Mode...")
     f, err := os.Open(os.Args[1])
     if err != nil {
       fmt.Println("错误：不能开文件")
       panic(err)
     }
+    fmt.Println("DEBUG: Opened file successfully...")
     defer f.Close() //TODO: make sure that this is the right way to open/close files
     var lines []string
     scanner := bufio.NewScanner(f)
+    fmt.Println("DEBUG: Scanning through file...")
     for scanner.Scan() {
       lines = append(lines, strings.TrimSpace(scanner.Text()))
     }
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)
     }
+    fmt.Println("DEBUG: Read file successfully...")
 
     workspace := []map[string]variable.Variable{}
     workspace = append(workspace, map[string]variable.Variable{})
     lines = strip_whitespace(lines)
     lines = find_comments(lines)
+    fmt.Println("DEBUG: Parsed lines...")
     lines, workspace[0], err = find_functions(lines,workspace[0])
+    fmt.Println("DEBUG: Found Functions...")
     if err != nil {
       fmt.Println(err)
       os.Exit(0)
     }
+    fmt.Println("DEBUG: No errors so far...")
     if strings.HasPrefix(lines[0],"#") {
       lines = append(lines[:0],lines[1:]...)
     }
-
+    fmt.Println("DEBUG: Starting Parser...")
     parser.ParseScript(lines,workspace)
+    fmt.Println("DEBUG: Script finished...")
   }
 }
 
