@@ -40,43 +40,43 @@ func main() {
     fmt.Println(messages.CLIHeaderText)
     cli_main()
   } else {
-    fmt.Println("DEBUG: Started in Script Mode...")
-    f, err := os.Open(os.Args[1])
-    if err != nil {
+    // Open file and handle errors that occur
+    if f, err := os.Open(os.Args[1]); err != nil {
       fmt.Println("错误：不能开文件")
       panic(err)
     }
-    fmt.Println("DEBUG: Opened file successfully...")
     defer f.Close() //TODO: make sure that this is the right way to open/close files
     var lines []string
     scanner := bufio.NewScanner(f)
-    fmt.Println("DEBUG: Scanning through file...")
+    // Read file line by line
     for scanner.Scan() {
       lines = append(lines, strings.TrimSpace(scanner.Text()))
     }
+    // Handle any errors that occur during standing
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)
     }
-    fmt.Println("DEBUG: Read file successfully...")
-
     workspace := []map[string]variable.Variable{}
     workspace = append(workspace, map[string]variable.Variable{})
     lines = strip_whitespace(lines)
-    lines = find_comments(lines)
-    fmt.Println("DEBUG: Parsed lines...")
-    lines, workspace[0], err = find_functions(lines,workspace[0])
-    fmt.Println("DEBUG: Found Functions...")
-    if err != nil {
-      fmt.Println(err)
+    // Remove comments from script
+    if lines, err := find_comments(lines); err != nil {
+      fmt.Println(err.Error())
       os.Exit(0)
     }
-    fmt.Println("DEBUG: No errors so far...")
-    if strings.HasPrefix(lines[0],"#") {
+    // Pull predefined functions out of script
+    if lines, workspace[0], err = find_functions(lines,workspace[0]); err != nil {
+      fmt.Println(err.Error())
+      os.Exit(0)
+    }
+    // Remove bash path line if present
+    if strings.HasPrefix(lines[0],"#!") {
       lines = append(lines[:0],lines[1:]...)
     }
-    fmt.Println("DEBUG: Starting Parser...")
-    parser.ParseScript(lines,workspace)
-    fmt.Println("DEBUG: Script finished...")
+    // Run Script
+    if _, _, err := parser.ParseScript(lines,workspace); err != nil {
+      fmt.Println(fmt.Error())
+    }
   }
 }
 
@@ -87,6 +87,7 @@ Returns: None
 */
 func cli_main() {
   // Loop continuously and execute commands provided by user
+  // TODO: Update this
   for {
     inputBuffer := bufio.NewReader(os.Stdin)
     fmt.Printf(">>>")
@@ -108,7 +109,7 @@ Arguments:
 Returns:
   []string - Modified Array of strings with comments removed
 */
-func find_comments( str_arr []string ) []string {
+func find_comments( str_arr []string ) []string, error {
     var output_str_arr []string
     // Loop through array and search for commented blocks
     for i := 0; i < len(str_arr); i++ {
@@ -127,13 +128,12 @@ func find_comments( str_arr []string ) []string {
             i = j
           }
         } else if strings.HasSuffix(str_arr[i],"结束注释") {
-          fmt.Println(messages.CommentEndWithoutStart)
-          os.Exit(0)
+          return str_arr, errors.New(messages.CommentEndWithoutStart)
         } else {
           output_str_arr = append(output_str_arr,str_arr[i])
         }
     }
-    return output_str_arr
+    return output_str_arr, nil
 }
 
 /*
