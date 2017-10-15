@@ -35,7 +35,7 @@ const (
   LTE4
 )
 
-func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) (variable.Variable, error)  {
+func AlgebraicParser(expression string, variableMap []map[string]variable.Variable ) (variable.Variable,  error)  {
   inQuotes := false
   parenthCount := 0
   addSubIndex := -1
@@ -394,7 +394,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
               return returnVar, errors.New("Errors evaluating function arg")
             }
           }
-          workspace, _, err := ParseScript(val.FuncVal,workspace)
+          workspace, _, err := ParseScript(val.FuncVal,val.FuncLines,workspace)
           if err != nil {
             return returnVar, err
           }
@@ -418,7 +418,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
             if val.TypeCode == variable.FUNC {
               workspace := []map[string]variable.Variable{}
               workspace = append(workspace, map[string]variable.Variable{})
-              workspace, _, err := ParseScript(val.FuncVal,workspace)
+              workspace, _, err := ParseScript(val.FuncVal,val.FuncLines,workspace)
               if err != nil {
                 return returnVar, err
               }

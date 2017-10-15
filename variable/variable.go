@@ -59,6 +59,7 @@ type Variable struct {
   FloatVal float64
   StringVal string
   FuncVal []string
+  FuncLines []int
   FuncArgs []string
 }
 

@@ -29,6 +29,29 @@ import (
     "cpl/messages"
 )
 
+type Line struct {
+  contents string
+  number int64
+}
+
+func (line *Line) getContents() string {
+  return line.contents
+}
+
+func (line *Line) getLineNumber() int64 {
+  return line.number
+}
+
+func (line *Line) setContents(s string) {
+  line.contents = s
+  return
+}
+
+func (line *Line) setLineNumber(n int64) {
+  line.number = n
+  return
+}
+
 /*
 main() - main entry point
 Arguments: None
@@ -41,7 +64,8 @@ func main() {
     cli_main()
   } else {
     // Open file and handle errors that occur
-    if f, err := os.Open(os.Args[1]); err != nil {
+    f, err := os.Open(os.Args[1])
+    if err != nil {
       fmt.Println("错误：不能开文件")
       panic(err)
     }
@@ -49,33 +73,45 @@ func main() {
     var lines []string
     scanner := bufio.NewScanner(f)
     // Read file line by line
+    //var line_number := 0
     for scanner.Scan() {
+      //lines = append(lines, Line{contents: strings.TrimSpace(scanner.Text()), number: line_number})
       lines = append(lines, strings.TrimSpace(scanner.Text()))
+      //line_number++
     }
     // Handle any errors that occur during standing
     if err := scanner.Err(); err != nil {
       fmt.Println(os.Stderr,err)
     }
+
+    var line_numbers []int
+    for i := 0; i < len(lines); i++ {
+      line_numbers = append(line_numbers, i)
+    }
+
+
     workspace := []map[string]variable.Variable{}
     workspace = append(workspace, map[string]variable.Variable{})
     lines = strip_whitespace(lines)
     // Remove comments from script
-    if lines, err := find_comments(lines); err != nil {
+    lines, line_numbers, err = find_comments(lines, line_numbers)
+    if err != nil {
       fmt.Println(err.Error())
       os.Exit(0)
     }
     // Pull predefined functions out of script
-    if lines, workspace[0], err = find_functions(lines,workspace[0]); err != nil {
+    if lines, line_numbers, workspace[0], err = find_functions(lines,line_numbers,workspace[0]); err != nil {
       fmt.Println(err.Error())
       os.Exit(0)
     }
     // Remove bash path line if present
     if strings.HasPrefix(lines[0],"#!") {
       lines = append(lines[:0],lines[1:]...)
+      line_numbers = append(line_numbers[:0],line_numbers[1:]...)
     }
     // Run Script
-    if _, _, err := parser.ParseScript(lines,workspace); err != nil {
-      fmt.Println(fmt.Error())
+    if _, _, err := parser.ParseScript(lines,line_numbers,workspace); err != nil {
+      fmt.Println(err.Error())
     }
   }
 }
@@ -109,8 +145,9 @@ Arguments:
 Returns:
   []string - Modified Array of strings with comments removed
 */
-func find_comments( str_arr []string ) []string, error {
+func find_comments( str_arr []string, line_number_arr []int ) ([]string, []int, error) {
     var output_str_arr []string
+    var output_line_arr []int
     // Loop through array and search for commented blocks
     for i := 0; i < len(str_arr); i++ {
         // Check for start of commented block
@@ -128,12 +165,13 @@ func find_comments( str_arr []string ) []string, error {
             i = j
           }
         } else if strings.HasSuffix(str_arr[i],"结束注释") {
-          return str_arr, errors.New(messages.CommentEndWithoutStart)
+          return str_arr, line_number_arr, errors.New(messages.CommentEndWithoutStart)
         } else {
           output_str_arr = append(output_str_arr,str_arr[i])
+          output_line_arr = append(output_line_arr,line_number_arr[i])
         }
     }
-    return output_str_arr, nil
+    return output_str_arr, output_line_arr, nil
 }
 
 /*
@@ -188,14 +226,15 @@ Returns:
   map[string]variable.Variable - Workspace with functions added
   error - Fires if an error occurs while parsing the array
 */
-func find_functions( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[string]variable.Variable, error ) {
+func find_functions( str_arr []string, line_number_arr []int, workspace map[string]variable.Variable ) ( []string, []int, map[string]variable.Variable, error ) {
   var out_str_arr []string
+  var out_line_number_arr []int
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"函数") {
       func_definition := strings.TrimPrefix(str_arr[i],"函数")
       name_and_args := strings.Split(func_definition,"要")
       if len(name_and_args) > 2 {
-        return str_arr, workspace, errors.New(messages.InvalidFunctionDeclaration) //TODO include line number in error message
+        return str_arr, line_number_arr, workspace, errors.New(messages.InvalidFunctionDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
       var arg_list []string
       if len(name_and_args) > 1 {
@@ -205,30 +244,34 @@ func find_functions( str_arr []string, workspace map[string]variable.Variable ) 
       new_function.TypeCode = variable.FUNC
       i++
       function_content := []string{}
+      function_lines := []int{}
       for i < len(str_arr) {
         if str_arr[i] == "结束函数" {
           break
         }
         if strings.HasPrefix(str_arr[i],"函数") {
-          return str_arr, workspace, errors.New(messages.FunctionWithinFunction)
+          return str_arr, line_number_arr, workspace, errors.New(messages.FunctionWithinFunction)
         }
         function_content = append(function_content,str_arr[i])
+        function_lines = append(function_lines,line_number_arr[i])
         i++
       }
       if i >= len(str_arr) {
-        return str_arr, workspace, errors.New(messages.EndFunctionNotFound)
+        return str_arr, line_number_arr, workspace, errors.New(messages.EndFunctionNotFound)
       }
       new_function.FuncVal = function_content
+      new_function.FuncLines = function_lines
       new_function.FuncArgs = arg_list
       if _, ok := workspace[name_and_args[0]]; ok {
-        return str_arr, workspace, errors.New(messages.DuplicateName) //TODO include function name in error message
+        return str_arr, line_number_arr, workspace, errors.New(messages.DuplicateName) //TODO include function name in error message
       }
       workspace[name_and_args[0]] = new_function
     } else {
       out_str_arr = append(out_str_arr,str_arr[i])
+      out_line_number_arr = append(out_line_number_arr,line_number_arr[i])
     }
   }
-  return out_str_arr, workspace, nil
+  return out_str_arr, out_line_number_arr, workspace, nil
 }
 
 /*
@@ -241,14 +284,15 @@ Returns:
   map[string]variable.Variable - Workspace with classes added
   error - Fires if an error occurs while parsing the array
 */
-func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( []string, map[string]variable.Variable, error ) {
+func find_classes( str_arr []string, line_number_arr []int, workspace map[string]variable.Variable ) ( []string, []int, map[string]variable.Variable, error ) {
   var out_str_arr []string
+  //var out_line_number_arr []int
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"类") {
       class_definition := strings.TrimPrefix(str_arr[i],"类")
       name_and_super_class := strings.Split(class_definition,"是")
       if len(name_and_super_class) > 2 {
-        return str_arr, workspace, errors.New(messages.InvalidClassDeclaration) //TODO include line number in error message
+        return str_arr, line_number_arr, workspace, errors.New(messages.InvalidClassDeclaration) //TODO include line number in error message
       } //TODO Check args for invalid characters
       new_class := variable.Variable{}
       new_class.TypeCode = variable.CLASS
@@ -259,13 +303,13 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
           break
         }
         if strings.HasPrefix(str_arr[i],"类") {
-          return str_arr, workspace, errors.New(messages.ClassWithinClass)
+          return str_arr, line_number_arr, workspace, errors.New(messages.ClassWithinClass)
         }
         class_content = append(class_content,str_arr[i])
         i++
       }
       if i >= len(str_arr) {
-        return out_str_arr, workspace, errors.New(messages.EndClassNotFound)
+        return out_str_arr, line_number_arr, workspace, errors.New(messages.EndClassNotFound)
       }
       /*
       new_class.ClassVal = content
@@ -277,7 +321,7 @@ func find_classes( str_arr []string, workspace map[string]variable.Variable ) ( 
       */
     }
   }
-  return str_arr, workspace, nil
+  return str_arr, line_number_arr, workspace, nil
 }
 
 func SplitByCommas( r rune ) bool {
