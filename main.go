@@ -303,7 +303,7 @@ func find_classes( str_arr []string, line_number_arr []int, workspace map[string
           break
         }
         if strings.HasPrefix(str_arr[i],"类") {
-          return str_arr, line_number_arr, workspace, errors.New(messages.ClassWithinClass)
+          return str_arr, line_number_arr, workspace, errors.New(messages.ClassWithinClass + "at line" + string(line_number_arr[i]))
         }
         class_content = append(class_content,str_arr[i])
         i++
@@ -311,6 +311,7 @@ func find_classes( str_arr []string, line_number_arr []int, workspace map[string
       if i >= len(str_arr) {
         return out_str_arr, line_number_arr, workspace, errors.New(messages.EndClassNotFound)
       }
+      
       /*
       new_class.ClassVal = content
       new_function.FuncArgs = name_and_args[1]

@@ -61,6 +61,7 @@ type Variable struct {
   FuncVal []string
   FuncLines []int
   FuncArgs []string
+  ClassVal []Variable
 }
 
 
@@ -187,15 +188,15 @@ func (v *Variable) Add(addend Variable) (Variable, error) {
     case FLOAT:
       returnVar.TypeCode = STRING
       var s_arr []string
-      s_arr[0] = v.StringVal
-      s_arr[1] = strconv.FormatFloat(addend.FloatVal,'f',-1,64)
+      s_arr = append(s_arr,v.StringVal)
+      s_arr = append(s_arr,strconv.FormatFloat(addend.FloatVal,'f',-1,64))
       returnVar.StringVal = strings.Join(s_arr,"")
       return returnVar, nil
     case STRING:
       returnVar.TypeCode = STRING
       var s_arr []string
-      s_arr[0] = v.StringVal
-      s_arr[1] = addend.StringVal
+      s_arr = append(s_arr,v.StringVal)
+      s_arr = append(s_arr,addend.StringVal)
       returnVar.StringVal = strings.Join(s_arr,"")
       return returnVar, nil
     }

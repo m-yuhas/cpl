@@ -6,6 +6,8 @@ import (
   "strings"
   "errors"
   "fmt"
+  "os"
+  "bufio"
 )
 
 type OpType int
@@ -379,6 +381,41 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
     }
     expr_arr = expr_arr[i+1:len(expr_arr)-1]
     arg_arr := strings.FieldsFunc(string(expr_arr),SplitByCommas)
+    if string(name) == "输入" {
+      if len(arg_arr) != 1 {
+        return returnVar, errors.New("Incorrect Number of Args")
+      }
+      tempVar, err := AlgebraicParser(arg_arr[0],variableMap)
+      if err != nil {
+        return returnVar, err
+      }
+      inputBuffer := bufio.NewReader(os.Stdin)
+      output_str, err := tempVar.ToString()
+      if err != nil {
+        return returnVar, err
+      }
+      fmt.Printf(output_str)
+      input_text, err := inputBuffer.ReadString('\n')
+      if err != nil {
+        return returnVar, err
+      }
+      input_text = strings.Replace(input_text,"\r\n","",-1)
+      float_val, err := strconv.ParseFloat(input_text,64)
+      if err == nil {
+        returnVar.TypeCode = variable.FLOAT
+        returnVar.FloatVal = float_val
+        return returnVar, nil
+      }
+      int_val, err := strconv.ParseInt(input_text,10,64)
+      if err == nil {
+        returnVar.TypeCode = variable.INT
+        returnVar.IntVal = int_val
+        return returnVar, nil
+      }
+      returnVar.TypeCode = variable.STRING
+      returnVar.StringVal = input_text
+      return returnVar, nil
+    }
     for _, vmap := range variableMap {
       if val, exists := vmap[string(name)]; exists {
         if val.TypeCode == variable.FUNC {
