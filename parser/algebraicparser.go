@@ -13,7 +13,7 @@ import (
 type OpType int
 
 const (
-  NULL OpType = 1 << iota
+  NULL OpType = iota + 1
   ADD
   SUB
   MUL
@@ -365,6 +365,58 @@ func AlgebraicParser(expression string, variableMap []map[string]variable.Variab
 
 func EvaluateAtom(expression string, variableMap []map[string]variable.Variable) (variable.Variable, error)  {
   returnVar := variable.Variable{}
+  ////////////////////
+  // ARRAYS and STRINGS
+  ////////////////////
+  if strings.HasSuffix(expression,"]") {
+    expr_arr := []rune(expression)
+    var name []rune
+    var i int
+    for i = 0; i < len(expr_arr); i++ {
+      if expr_arr[i] == '[' {
+        break
+      } else {
+        name = append(name, expr_arr[i])
+      }
+    }
+    if i >= len(expr_arr) {
+      return returnVar, errors.New("No opening [")
+    }
+    expr_arr = expr_arr[i+1:len(expr_arr)-1]
+    arg_arr := strings.Split(string(expr_arr),"][")
+    for _, vmap := range variableMap {
+      if val, exists := vmap[string(name)]; exists {
+        if val.TypeCode != variable.STRING || val.TypeCode != variable.ARRAY {
+          return returnVar, errors.New("Variable Cannot Be Indexed")
+        }
+        if val.TypeCode == variable.ARRAY {
+          for _, arg := range arg_arr {
+            tempVar, err = AlgebraicParser(arg,variableMap)
+            if err != nil {
+                return returnVar, err
+            }
+            if tempVar.TypeCode == variable.FLOAT {
+              //TODO Round to nearest Int
+            }
+            if tempVar.TypeCode != variable.INT {
+              return returnVar, errors.New("Index must evaluate to int or float")
+            }
+            val = val.ArrayVal[tempVar.IntVal]
+          }
+        }
+        if val.TypeCode ==variable.STRING {
+          if len(arg_arr) > 1 {
+            return returnVar, errors.New("String only has one dimension")
+          }
+
+        }
+      }
+    }
+  }
+
+
+
+
   if strings.HasSuffix(expression,")") || strings.HasSuffix(expression,"）") {
     expr_arr := []rune(expression)
     var name []rune
@@ -381,6 +433,9 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
     }
     expr_arr = expr_arr[i+1:len(expr_arr)-1]
     arg_arr := strings.FieldsFunc(string(expr_arr),SplitByCommas)
+    ////////////////////////
+    // INPUT
+    ////////////////////////
     if string(name) == "输入" {
       if len(arg_arr) != 1 {
         return returnVar, errors.New("Incorrect Number of Args")

@@ -37,11 +37,12 @@ OBJ - object
 type TYPE_CODE uint8
 
 const (
-  NULL TYPE_CODE = 1 << iota
+  NULL TYPE_CODE = iota + 1
   BOOL
   INT
   FLOAT
   STRING
+  ARRAY
   FUNC
   CLASS
   OBJ
@@ -58,6 +59,7 @@ type Variable struct {
   IntVal int64
   FloatVal float64
   StringVal string
+  ArrayVal []Variable
   FuncVal []string
   FuncLines []int
   FuncArgs []string
