@@ -384,7 +384,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
       //fmt.Println("Added Element")
       returnVar.ArrayVal = append(returnVar.ArrayVal,tempVar)
     }
-    fmt.Println(len(returnVar.ArrayVal))
+    //fmt.Println(len(returnVar.ArrayVal))
     return returnVar, nil
   }
 
@@ -423,7 +423,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
                 return returnVar, err
             }
             //fmt.Println("Index Parsed")
-            fmt.Println(tempVar)
+            //fmt.Println(tempVar)
             if tempVar.TypeCode == variable.FLOAT {
               //TODO Round to nearest Int
             }
