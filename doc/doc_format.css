@@ -1,0 +1,33 @@
+body {
+  background-color: #999999;
+}
+
+h1 {
+  font-family: verdana;
+  font-size: 50pt;
+}
+
+h2 {
+  font-family: verdana;
+  font-size: 30pt;
+}
+
+h3 {
+  font-family: verdana;
+  font-size: 20pt;
+}
+
+p {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+}
+
+pre {
+  font-family: "Courier New", "Lucida Console";
+}
+
+a {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+  color: #0000FF;
+}
