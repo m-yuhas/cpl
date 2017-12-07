@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="doc_format.css">
+    <meta charset="utf-8" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="doc_format.css" />
   </head>
   <body>
     <h1>Getting Started with the Baomao Programming Language</h1>
@@ -17,8 +19,15 @@
     <p>4.) Open terminal and type 'baomao'.  You should see the following appear:
     <img src='windows_step3.png' />
     <h3>Linux and MacOS</h3>
-    <p>1.) Open terminal and copy the baomao binary file into the /usr/bin directory:<pre>sudo cp ~/git/cpl/bin/x86/linux/baomao /usr/bin</pre></p>
+    <p>1.) Open terminal and copy the baomao binary file into the /usr/bin directory:<pre>sudo cp ~/git/cpl/bin/x86/linux/baomao /usr/local/bin/</pre></p>
     <p>2.) Type 'baomao' and try to run the program.  You should see the following appear:</p>
     <img src='mac_step2.png' />
-    <h2>II. Hello World</h2>
+    <h2>II. Install and IDE</h2>
+    <p>You can use your favorite text editor or IDE to create Baomao programs, but I recommend using Atom.  I have created an atom package that includes syntax highlighting to make reading and writing code easier.  This section details the installation process.</p>
+    <p>1.) Download and install Atom on your system.  Go to https://atom.io</p>
+    <p>2.) Clone my baomao language package for Atom:<pre>git clone https://github.com/m-yuhas/language-baomao.git</pre></p>
+    <p>3.) Copy the language package into the .atom folder for you Atom installation.  Terminal commands are listed below, but you can do this using the GUI if that is more comfortable.  On Linux and MacOS:<pre>cp -r cp -r ~/git/language-baomao/ ~/.atom/packages/language-baomao/</pre>On Windows:<pre>mkdir .atom\packages\language-baomao<br />xcopy git\language-baomao .atom\packages\language-baomao /s /e</pre></p>
+    <h2>III. Hello World</h2>
+    <p>Let's create a basic program to test everything.  Open up your favorite IDE and create a file with the following line:<pre>输出（“你好时节！”）</pre>Save the file as 'hello.bm'.  If you are using Atom and have the language package installed you should now see 输出 appear in blue.  To run open terminal and type:<pre>baomao hello.bm</pre>You should see the following output:</p>
+    <img src='mac_helloworld.png' />
 </html>
