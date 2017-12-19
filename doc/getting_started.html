@@ -33,4 +33,10 @@
     <h2>IV. Getting User Input</h2>
     <p>Now let's make a program that get's user input.  We can do this with the 输入 function. 输入 will display a string in the console and collect all user input before the return key is pressed.  This data will be stored as a string.  Try it with the example program below:<pre>姓名 《 输入（“你叫什么名字？”）<br />输出（“你好”+姓名）</pre>Notice also that we can use the '+' operator on two strings to concatenate them. Notice also that we can set a variable using '《'.  Instead of using '=' to set a variable like in other programming language, an arrow (《) is used to show that the result of the expression on the right is being stored into the variable on the left.  This helps students learning programming reinforce the fact that a variable acts as a storage container for a value.</p>
     <img src='mac_input.png' />
+    <h2>V. Branching</h2>
+    <p>We also have the ability to branch depending on a condition.  See the example code below:<pre>姓名 《 输入（“你叫什么名字？”）<br />如果 姓名 = “我不知道”<br />&emsp;输出（“你怎么不知道你的名字？“）<br />否则<br />&emsp;输出（”你好“+姓名）<br />结束分支</pre>In this case 如果 asks if the following condition is true or false.  If the condition after 如果 is true, the commands immediately following the line with 如果 are executed.  If the condition is false, the lines after 否则 are executed.  After the 结束分支 statement, every line is executed regardless of the previous condition.  Thus in this example the user is asked what their name is.  If they reply that they do not know, then the program chastizes them.  Otherwise, it greets them.</p>
+    <h2>VI. Looping</h2>
+    Okay, let's do something a little more mathematical; let's calculate the Fibonacci sequence.  We can do this with a loop:<pre>斐波那契数号 《 1<br />以前来的数号 《 1<br />当 斐波那契数号 小于 1000<br />&emsp;输出（斐波那契数号）<br />&emsp;暂时价值 《 斐波那契数号<br />&emsp;斐波那契数号 《 斐波那契数号 + 以前来的数号<br />&emsp;以前来的数号 《 暂时价值<br />结束循环</pre>In this example when the statement after 当 evaluates to true, all the statements between 当 and 结束循环 are executed.  After execution completes, the statement after 当 is evaluated again and the process continues.
+
+
 </html>
