@@ -520,9 +520,12 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
       return returnVar, nil
     }
     for _, vmap := range variableMap {
+      //fmt.Println("Searching for" + string(name))
       if val, exists := vmap[string(name)]; exists {
+        //fmt.Println("Match Found")
         if val.TypeCode == variable.FUNC {
           workspace := []map[string]variable.Variable{}
+          workspace = append(workspace, variableMap[0])
           workspace = append(workspace, map[string]variable.Variable{})
           if len(arg_arr) != len(val.FuncArgs) {
             return returnVar, errors.New("Incorrect Number of Args")
@@ -534,6 +537,7 @@ func EvaluateAtom(expression string, variableMap []map[string]variable.Variable)
               return returnVar, errors.New("Errors evaluating function arg")
             }
           }
+          //fmt.Println("Parsing Script")
           workspace, _, err := ParseScript(val.FuncVal,val.FuncLines,workspace)
           if err != nil {
             return returnVar, err

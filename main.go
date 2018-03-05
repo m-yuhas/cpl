@@ -104,6 +104,8 @@ func main() {
       fmt.Println(err.Error())
       os.Exit(0)
     }
+
+    //fmt.Println(workspace[0])
     // Remove bash path line if present
     if strings.HasPrefix(lines[0],"#!") {
       lines = append(lines[:0],lines[1:]...)
@@ -286,6 +288,7 @@ Returns:
 */
 func find_classes( str_arr []string, line_number_arr []int, workspace map[string]variable.Variable ) ( []string, []int, map[string]variable.Variable, error ) {
   var out_str_arr []string
+  var out_line_arr []int
   //var out_line_number_arr []int
   for i := 0; i < len(str_arr); i++ {
     if strings.HasPrefix(str_arr[i],"类") {
@@ -306,12 +309,20 @@ func find_classes( str_arr []string, line_number_arr []int, workspace map[string
           return str_arr, line_number_arr, workspace, errors.New(messages.ClassWithinClass + "at line" + string(line_number_arr[i]))
         }
         class_content = append(class_content,str_arr[i])
+        out_line_arr = append(out_line_arr, line_number_arr[i] )
         i++
       }
       if i >= len(str_arr) {
         return out_str_arr, line_number_arr, workspace, errors.New(messages.EndClassNotFound)
       }
-      
+
+
+      temp_map := []map[string]variable.Variable{}
+      if lines, line_numbers, temp_map, err := find_functions(class_content, out_line_arr, temp_map); err != nil {
+        fmt.Println(err.Error())
+        os.Exit(0)
+      }
+
       /*
       new_class.ClassVal = content
       new_function.FuncArgs = name_and_args[1]
