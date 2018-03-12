@@ -286,6 +286,7 @@ Returns:
   map[string]variable.Variable - Workspace with classes added
   error - Fires if an error occurs while parsing the array
 */
+/*
 func find_classes( str_arr []string, line_number_arr []int, workspace map[string]variable.Variable ) ( []string, []int, map[string]variable.Variable, error ) {
   var out_str_arr []string
   var out_line_arr []int
@@ -330,11 +331,11 @@ func find_classes( str_arr []string, line_number_arr []int, workspace map[string
         return str_arr, workspace, errors.New(messges.DuplicateName) //TODO include function name in error message
       }
       workspace[name_and_args[0]] = new_function
-      */
+      *//*
     }
   }
   return str_arr, line_number_arr, workspace, nil
-}
+}*/
 
 func SplitByCommas( r rune ) bool {
   return r == ',' || r == '、'
