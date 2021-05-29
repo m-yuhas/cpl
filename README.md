@@ -1,5 +1,5 @@
 # cpl
-中华电脑语言
+中文电脑语言
 
 Chinese Programming Language Demo
 
